@@ -1,6 +1,6 @@
 ## How to add new custom driver?
 
-이 문서는 새로운 사용자 정의 드라이버 기능을 추가하는 방법과, 이 기능을 호스트 서버에서 호출하는 방법에 대해 설명합니다.
+이 문서는 새로운 사용자 정의 드라이버 기능을 추가하는 방법과, 이 기능을 Host 서버에서 호출하는 방법에 대해 설명합니다.
 
 #### Method of adding new driver feature to spdk
 

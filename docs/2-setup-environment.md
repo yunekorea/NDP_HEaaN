@@ -8,8 +8,8 @@
 
 - TCP로 연결된 두 물리 서버가 필요합니다.
 - 두 서버 간 TCP 연결이 필요하기 때문에, 각각의 서버를 위한 별도의 네트워크 인터페이스 카드와 사설 IP를 준비하는 것을 추천합니다.
-- 네트워크를 구성할 때 공유기를 거치도록 구축해도 큰 문제는 없지만, 정확한 실험 환경을 위해 호스트와 타겟 서버 간 직접 연결을 추천합니다.
-- **(중요) 이 프로젝트를 다운로드 받고 nvme-cli 폴더는 호스트 서버에, spdk 폴더는 타겟 서버에 위치하세요.**
+- 네트워크를 구성할 때 공유기를 거치도록 구축해도 큰 문제는 없지만, 정확한 실험 환경을 위해 호스트와 Target 서버 간 직접 연결을 추천합니다.
+- **(중요) 이 프로젝트를 다운로드 받고 nvme-cli 폴더는 Host 서버에, spdk 폴더는 Target 서버에 위치하세요.**
 
 ### Setting Up Development Environment
 
@@ -29,7 +29,7 @@
 cd spdk
 ```
 
-1. 먼저 타겟 서버에서 SPDK를 빌드합니다.
+1. 먼저 Target 서버에서 SPDK를 빌드합니다.
 ```shell
 sudo ./configure
 sudo make -j `nproc`
@@ -63,7 +63,7 @@ sudo nvme connect -t tcp -n nqn.2016-06.io.spdk:cnode1 -a <target ip>(ex. 192.16
 sudo nvme list # 이 명령어를 수행하여 연결이 잘되었는지 확인하세요(선택사항) 
 ```
 
-2. nvme-cli 구성 및 호스트 서버에 설치
+2. nvme-cli 구성 및 Host 서버에 설치
 
 ```shell
 cd nvme-cli
@@ -81,7 +81,7 @@ sudo mount <device>(ex. /dev/nvme0n1) <mount_point>
 
 #### (Note) How to Cancel Connection Safely?
 
-아래 작업은 호스트 서버와 타겟 서버 간 NVMe over Fabric TCP 연결을 안전하게 종료하기 위해 수행합니다.
+아래 작업은 Host 서버와 Target 서버 간 NVMe over Fabric TCP 연결을 안전하게 종료하기 위해 수행합니다.
 
 파일시스템을 사용하는 것을 유의하며 수행해주세요.
 

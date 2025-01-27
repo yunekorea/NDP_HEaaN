@@ -19,7 +19,7 @@ io-passthru는 사용자 정의(vendor-specific)한 명령을 커스텀할 수 �
 - `함수 위치`: nvme-cli/nvme.c
 - `함수 설명`: 내부적으로 fiemap이라는 시스템 콜을 통해 파일 매핑 정보를 얻어옵니다. 이 매핑 정보에 별도의 처리를 통해 Logical Block Address 주소 범위로 변환합니다.
 
-3. 전환된 extent 정보를 cdw(command dword)에 설정하여 io-passthru 명령을 최종적으로 완성하고, libnvme를 통해 컨트롤러(타겟 서버)로 명령을 전송합니다.(PDU 형태로 전송)
+3. 전환된 extent 정보를 cdw(command dword)에 설정하여 io-passthru 명령을 최종적으로 완성하고, libnvme를 통해 컨트롤러(Target 서버)로 명령을 전송합니다.(PDU 형태로 전송)
 - `주요 함수`: [static int passthru()](../nvme-cli/nvme.c)
 - `함수 위치`: nvme-cli/nvme.c
 

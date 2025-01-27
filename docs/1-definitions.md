@@ -38,5 +38,9 @@ NVMe over PCIe와 달리 host와 target 드라이버로 이루어집니다. 본 
   - 용량이 작은 파일의 경우, 데이터가 표현되는 Logical Block Address의 범위가 연속적이며 단일 extent로 표현될 수 있습니다. 
   - 용량이 큰 파일의 경우, 데이터가 표현되는 Logical Block Address의 범위는 일반적으로 불연속적이며 한 개 이상의 extent들의 집합으로 표현될 수 있습니다.
 
+#### Data Processing(controller only)
 
+본 논문에서는 연산을 처리하기 위해 두 종류의 `연산 메타데이터 파일`과 `연산 대상 파일`을 사용합니다.
+
+예시로 로그 파일에서 grep 연산을 수행한다고 가정하면 로그 파일이 `연산 대상파일`이고, grep할 키워드가 쓰여있는 파일이 `연산 메타데이터 파일`입니다.
 

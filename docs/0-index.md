@@ -12,6 +12,4 @@
 
 4. [플랫폼에 새로운 사용자 정의 드라이버 기능을 추가하는 방법](./4-how-to-add-new-custom-driver-feature.md)
 
-5. [추가한 사용자 정의 드라이버 기능을 호스트 시스템에서 호출하는 방법](./5-how-to-call-custom-driver-feature-from-host.md)
-
-6. [트러블 슈팅 가이드](./6-troubleshooting.md)
+5. [트러블 슈팅 가이드](./5-troubleshooting)

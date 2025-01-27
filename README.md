@@ -1,4 +1,4 @@
-## near-data-processing-platform
+# Near-data-processing-platform
 
 A Near-Data-Processing Platform Implementation With SPDK and NVMe-over-Fabric
 
@@ -16,9 +16,10 @@ A Near-Data-Processing Platform Implementation With SPDK and NVMe-over-Fabric
   - (Note) host and target configuration are same
 
 ### Docs
-This documentation covers the implementation and operation of the platform. This documentation is available in Korean.
 
-[Read Doc](./docs)
+This documentation covers the implementation and operation of the platform(available in Korean).
+
+[Read Doc](./docs/0-index.md)
 
 ### Contact
 Feel free to get in touch with me or open a GitHub issue!

@@ -1,6 +1,0 @@
-## Setting Environments
-
----
-
-### Prerequisities
-

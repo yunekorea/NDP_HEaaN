@@ -59,7 +59,36 @@
             return nvmf_bdev_ctrlr_custom_echo_cmd(bdev, desc, ch, req);
     ```
 
-5. Unit Test 등록(중요)
+5. 드라이버 기능의 데이터 전송 방향이 Controller to Host로 강제 **(중요)**
+
+   spdk_nvmf_req_get_xfer(spdk/include/spdk/nvmf_transport.h)에 아래와 같은 조건문과 반환문을 추가합니다.
+
+   ```c
+    static inline enum spdk_nvme_data_transfer
+    spdk_nvmf_req_get_xfer(struct spdk_nvmf_request *req) {
+    	enum spdk_nvme_data_transfer xfer;
+    	struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
+    	struct spdk_nvme_sgl_descriptor *sgl = &cmd->dptr.sgl1;
+   ...
+
+   if (cmd->opc == <추가하려는 Opcode>) {  // 커스텀 명령의 데이터 전송 방향을 설정
+        return SPDK_NVME_DATA_CONTROLLER_TO_HOST;
+   }
+
+   ...
+   
+   ```
+
+   `data transfer type이란?(참고사항)`
+   
+   nvme 명령어가 데이터를 전송하는 방향을 지정함.
+   크게 호스트에서 컨트롤러로 데이터를 전송할 수 있는 Host to Controller(h2c),
+   컨트롤러에서 호스트로 데이터를 전송받을 수 있는 Controller to Host(c2h),
+   데이터 전송을 하지 않는 Data None,
+   한번의 명령어에서 양방향으로 데이터 전송을 할 수 있는 Bidirectional이 있습니다.(참고: Bidirectional은 NVMe over Fabric에서는 지원하지 않음)
+   
+
+7. Unit Test 등록 **(중요)**
 
     새롭게 구현한 드라이버 함수에 대해 실제 unit test를 작성하는 것은 아니지만, 구현한 함수를 unit test 영역에 등록하지 않으면 빌드가 실패합니다. 
     따라서 구현한 함수를 반드시 unit test에 등록합니다.

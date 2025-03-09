@@ -27,21 +27,27 @@
 
 ```shell
 cd spdk
+git submodule update --init # 서브모듈 업데이트
 ```
 
-1. 먼저 Target 서버에서 SPDK를 빌드합니다.
+1. 필요한 의존성을 다운로드합니다.
+```shell
+sudo ./scripts/pkgdep.sh
+```
+
+2. 먼저 Target 서버에서 SPDK를 빌드합니다.
 ```shell
 sudo ./configure
 sudo make -j `nproc`
 ```
 
-2. 빌드된 SPDK의 바이너리를 실행합니다.
+3. 빌드된 SPDK의 바이너리를 실행합니다.
 
 ```shell
 sudo build/bin/nvmf_tgt # 또는 명령어 뒤에 &를 붙여 백그라운드로 실행하세요(선택사항).
 ```
 
-3. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
+4. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
 
 ```shell
 # 새로운 쉘을 열고 아래 명령어들을 실행하세요.

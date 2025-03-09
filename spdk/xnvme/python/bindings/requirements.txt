@@ -1,6 +1,0 @@
-# For ctypes-bindings
-black
-clang>=11,<=14.0.6
-ctypeslib2
-# All
-pytest

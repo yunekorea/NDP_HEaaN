@@ -1,4 +1,0 @@
-xnvme_spec_log_fdp_stats:
-  hbmw: [104857600, 0]
-  mbmw: [104857600, 0]
-  mbe: [0, 0]

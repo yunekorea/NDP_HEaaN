@@ -16,6 +16,6 @@
 [submodule "spdk/xnvme"]
 	path = spdk/xnvme
 	url = https://github.com/xnvme/xnvme.git
-[submodule "spdk/isa-l_crypto"]
-	path = spdk/isa-l_crypto
+[submodule "spdk/isa-l-crypto"]
+	path = spdk/isa-l-crypto
 	url = https://github.com/intel/isa-l_crypto

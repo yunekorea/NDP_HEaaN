@@ -2,7 +2,15 @@
 
 A Near-Data-Processing Platform Implementation With SPDK and NVMe-over-Fabric
 
-`SPDK와 NVMe-over-Fabric을 이용한 Near Data Processing 플랫폼 구축`
+### Abstract
+The increasing demand for large-scale data processing, driven by applications such as AI
+training, has highlighted the bottleneck caused by massive data movement. To address this
+challenge, the concept of Near-Data Processing (NDP) has gained significant attention. This
+paper proposes an NDP platform tailored for networked storage environments, which are
+commonly used in data centers. By extending the NVMe-over-Fabric protocol and modifying
+the SPDK user-level storage driver, our proposed platform aims to provide a user-friendly and
+efficient NDP solution without requiring additional hardware modifications.
+
 
 ### Overall Architecture
 

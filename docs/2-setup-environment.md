@@ -62,14 +62,20 @@ sudo scripts/rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tc
 
 아래는 Host 서버에서 수행할 작업입니다.
 
-1. SPDK Target TCP Transport와 연결
+1. nvme-tcp 불러오기
+
+```shell
+sudo modprobe nvme-tcp
+```
+
+2. SPDK Target TCP Transport와 연결
 
 ```shell
 sudo nvme connect -t tcp -n nqn.2016-06.io.spdk:cnode1 -a <target ip>(ex. 192.168.0.5) -s <port>(ex. 4420)
 sudo nvme list # 이 명령어를 수행하여 연결이 잘되었는지 확인하세요(선택사항) 
 ```
 
-2. nvme-cli 구성 및 Host 서버에 설치
+3. nvme-cli 구성 및 Host 서버에 설치
 
 ```shell
 cd nvme-cli
@@ -77,7 +83,7 @@ sudo meson compile -C .build # nvme-cli 코드에 변경이 있다면 컴파일�
 sudo meson install -C .build
 ```
 
-3. 호스트 파일시스템 구성(선택 사항)
+4. 호스트 파일시스템 구성(선택 사항)
 
 ```shell
 sudo mkfs.ext4 <device>(ex. /dev/nvme0n1)

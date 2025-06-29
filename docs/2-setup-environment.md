@@ -41,13 +41,18 @@ sudo ./configure
 sudo make -j `nproc`
 ```
 
-3. 빌드된 SPDK의 바이너리를 실행합니다.
+3. Hugepage를 설정합니다.
+```shell
+sudo HUGEMEM=4096 scripts/setup.sh # Hugepage의 크기는 필요량에 따라 적절히 설정합니다.
+```
+
+4. 빌드된 SPDK의 바이너리를 실행합니다.
 
 ```shell
 sudo build/bin/nvmf_tgt # 또는 명령어 뒤에 &를 붙여 백그라운드로 실행하세요(선택사항).
 ```
 
-4. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
+5. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
 
 ```shell
 # 새로운 쉘을 열고 아래 명령어들을 실행하세요.
@@ -62,14 +67,20 @@ sudo scripts/rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tc
 
 아래는 Host 서버에서 수행할 작업입니다.
 
-1. SPDK Target TCP Transport와 연결
+1. nvme-tcp 불러오기
+
+```shell
+sudo modprobe nvme-tcp
+```
+
+2. SPDK Target TCP Transport와 연결
 
 ```shell
 sudo nvme connect -t tcp -n nqn.2016-06.io.spdk:cnode1 -a <target ip>(ex. 192.168.0.5) -s <port>(ex. 4420)
 sudo nvme list # 이 명령어를 수행하여 연결이 잘되었는지 확인하세요(선택사항) 
 ```
 
-2. nvme-cli 구성 및 Host 서버에 설치
+3. nvme-cli 구성 및 Host 서버에 설치
 
 ```shell
 cd nvme-cli
@@ -77,7 +88,7 @@ sudo meson compile -C .build # nvme-cli 코드에 변경이 있다면 컴파일�
 sudo meson install -C .build
 ```
 
-3. 호스트 파일시스템 구성(선택 사항)
+4. 호스트 파일시스템 구성(선택 사항)
 
 ```shell
 sudo mkfs.ext4 <device>(ex. /dev/nvme0n1)

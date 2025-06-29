@@ -41,13 +41,18 @@ sudo ./configure
 sudo make -j `nproc`
 ```
 
-3. 빌드된 SPDK의 바이너리를 실행합니다.
+3. Hugepage를 설정합니다.
+```shell
+sudo HUGEMEM=4096 scripts/setup.sh # Hugepage의 크기는 필요량에 따라 적절히 설정합니다.
+```
+
+4. 빌드된 SPDK의 바이너리를 실행합니다.
 
 ```shell
 sudo build/bin/nvmf_tgt # 또는 명령어 뒤에 &를 붙여 백그라운드로 실행하세요(선택사항).
 ```
 
-4. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
+5. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
 
 ```shell
 # 새로운 쉘을 열고 아래 명령어들을 실행하세요.

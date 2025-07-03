@@ -1744,6 +1744,13 @@ enum spdk_nvme_nvm_opcode {
 
 	SPDK_NVME_OPC_CUSTOM_ECHO = 0xd0, // opcode for custom echo,
 	SPDK_NVME_OPC_CUSTOM_GREP = 0xd1, // opcode for custom grep,
+	SPDK_NVME_OPC_HEAAN_ADD = 0xe0,   // opcode for HEaaN addition
+	SPDK_NVME_OPC_HEAAN_SUB = 0xe1,   // opcode for HEaaN subtraction
+	SPDK_NVME_OPC_HEAAN_MUL = 0xe2,   // opcode for HEaaN multiplication
+	SPDK_NVME_OPC_HEAAN_DIV = 0xe3,   // opcode for HEaaN division
+	
+	SPDK_NVME_OPC_HEAAN_DEC = 0xe4,   // opcode for HEaaN decryption
+	SPDK_NVME_OPC_HEAAN_BTSRP = 0xe5, // opcode for HEaaN bootstrapping
 };
 
 /**

@@ -9016,7 +9016,7 @@ static int passthru(int argc, char **argv, bool admin,
 				d_raw((unsigned char *)data, cfg.data_len); // raw binary 그대로 출력
 			}
 
-			if(cfg.opcode = 0xD1){ // 커스텀 Grep 명령일때
+			if(cfg.opcode == 0xD1){ // 커스텀 Grep 명령일때
 			     d_raw((unsigned char *)data, cfg.data_len); // raw binary 그대로 출력
 			     printf("\n");
 			}

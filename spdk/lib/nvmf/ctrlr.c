@@ -2526,9 +2526,21 @@ static const struct spdk_nvme_cmds_and_effect_log_page g_cmds_and_effect_log_pag
 		/* COPY */
 		[SPDK_NVME_OPC_COPY]			= {1, 1, 0, 0, 0, 0, 0, 0},
 		/* CUSTOM ECHO */
-        [SPDK_NVME_OPC_CUSTOM_ECHO]     = {1, 1, 0, 0, 0, 0, 0, 0},
-        /* CUSTOM GREP */
-        [SPDK_NVME_OPC_CUSTOM_GREP]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    [SPDK_NVME_OPC_CUSTOM_ECHO]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* CUSTOM GREP */
+    [SPDK_NVME_OPC_CUSTOM_GREP]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* HEAAN ADD */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_ADD]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* HEAAN SUB */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_SUB]     = {1, 1, 0, 0, 0, 0, 0, 0}, 
+    /* HEAAN MUL */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_MUL]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* HEAAN DIV */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_DIV]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* HEAAN DEC */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_DEC]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    /* HEAAN BTSRP */
+    [SPDK_NVME_OPC_CUSTOM_HEAAN_BTSRP]     = {1, 1, 0, 0, 0, 0, 0, 0},
 	},
 };
 

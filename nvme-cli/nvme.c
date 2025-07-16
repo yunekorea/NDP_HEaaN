@@ -8916,7 +8916,7 @@ static int passthru(int argc, char **argv, bool admin,
 		    printf("data-size: %d\n", cfg.data_len);
 
                     free_file_layout(layout);
-            }
+    }
 	
 	if (cfg.opcode == 0xe1) { //HEaaN Ciphertext Add custom OPC
 		char *filename = cfg.target_file;

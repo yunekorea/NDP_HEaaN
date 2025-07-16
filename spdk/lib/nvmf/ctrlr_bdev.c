@@ -1032,7 +1032,23 @@ nvmf_bdev_ctrlr_custom_echo_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *d
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }
 
+int
+nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
+                                struct spdk_io_channel *ch, struct spdk_nvmf_request *req)
+{
+    struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
+    struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
 
+    /* 연산 메타데이터 파일의 주소 범위, 연산 대상파일의 주소 범위를 받아 연산하는 드라이버 기능*/
+	void* data = cmd->dptr.sgl1.address;
+    uint32_t extents_count = cmd->cdw11; // Number of extents
+
+	uint64_t* u64data = (uint64_t*)data;
+	for(int i = 0; i < extents_count; i++) {
+		printf("LBA: %d\n", u64data[2*i]);
+		printf("Len: %d\n", u64data[2*i+1]);
+	}
+}
 
 int
 nvmf_bdev_ctrlr_compare_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,

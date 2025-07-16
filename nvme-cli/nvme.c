@@ -8917,6 +8917,43 @@ static int passthru(int argc, char **argv, bool admin,
 
                     free_file_layout(layout);
             }
+	
+	if (cfg.opcode == 0xe1) { //HEaaN Ciphertext Add custom OPC
+		char *filename = cfg.target_file;
+		file_layout_t *layout = get_file_layout(filename);
+		if(!layout) {
+			fprintf(stderr, "Failed to get file layout\n");
+			return 1;
+		}
+		cfg.cdw11 = (__u32)layout->extent_count;
+
+		cfg.data_len = 8192;
+		data = nvme_alloc_huge(cfg.data_len, &mh);
+		if (!data)
+			return -ENOMEM;
+			memset(data, cfg.prefill, cfg.data_len);
+		
+			__u64* u64data = (__u64*)data;
+		for(int i = 0; i < layout->extent_count; i++) {
+			extent_info_t *ext = &layout->extents[i];
+			u64data[2*i] = (__u64)ext->lba_start; // 시작 LBA
+			u64data[2*i+1] = (__u64)ext->lba_count; // 블록 개수
+		}
+		
+		/*
+		if (!cfg.read && !cfg.write) {
+			nvme_show_error("data direction not given");
+			return -EINVAL;
+		} else if (cfg.write) {
+			if (read(dfd, data, cfg.data_len) < 0) {
+				err = -errno;
+				nvme_show_error("failed to read write buffer %s", strerror(errno));
+				return err;
+			}
+		}
+		*/
+		goto skip_data_fill;
+	}
 
 	if (cfg.metadata_len) {
 		mdata = malloc(cfg.metadata_len);
@@ -8951,6 +8988,8 @@ static int passthru(int argc, char **argv, bool admin,
 			}
 		}
 	}
+
+	skip_data_fill:
 
 
 	if (cfg.show_command || cfg.dry_run) {

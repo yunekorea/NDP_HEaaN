@@ -4455,6 +4455,8 @@ nvmf_ctrlr_process_io_cmd(struct spdk_nvmf_request *req)
             return nvmf_bdev_ctrlr_custom_echo_cmd(bdev, desc, ch, req);
         case SPDK_NVME_OPC_CUSTOM_GREP:
             return nvmf_bdev_ctrlr_custom_grep_cmd(bdev, desc, ch, req);
+		case SPDK_NVME_OPC_CUSTOM_HEAAN_ADD;
+			return nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(bdev, desc, ch, req);
         // END OF CUSTOM COMMAND
 		case SPDK_NVME_OPC_COMPARE:
 			if (spdk_unlikely(!ctrlr->cdata.oncs.compare)) {

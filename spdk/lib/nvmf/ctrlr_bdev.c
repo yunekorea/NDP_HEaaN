@@ -1044,8 +1044,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
 	uint64_t* u64data = (uint64_t*)data;
 	for(int i = 0; i < extents_count; i++) {
-		printf("LBA: %d\n", u64data[2*i]);
-		printf("Len: %d\n", u64data[2*i+1]);
+		printf("LBA: %ld\n", u64data[2*i]);
+		printf("Len: %ld\n", u64data[2*i+1]);
 	}
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
 	response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;

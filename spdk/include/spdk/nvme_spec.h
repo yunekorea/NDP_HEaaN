@@ -1749,8 +1749,8 @@ enum spdk_nvme_nvm_opcode {
 	SPDK_NVME_OPC_CUSTOM_HEAAN_MUL = 0xe2,   // opcode for HEaaN multiplication
 	SPDK_NVME_OPC_CUSTOM_HEAAN_DIV = 0xe3,   // opcode for HEaaN division
 	
-	SPDK_NVME_OPC_HEAAN_DEC = 0xe4,   // opcode for HEaaN decryption
-	SPDK_NVME_OPC_HEAAN_BTSRP = 0xe5, // opcode for HEaaN bootstrapping
+	SPDK_NVME_OPC_CUSTOM_HEAAN_DEC = 0xe4,   // opcode for HEaaN decryption
+	SPDK_NVME_OPC_CUSTOM_HEAAN_BTSRP = 0xe5, // opcode for HEaaN bootstrapping
 };
 
 /**

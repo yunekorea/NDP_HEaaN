@@ -8931,7 +8931,7 @@ static int passthru(int argc, char **argv, bool admin,
 		data = nvme_alloc_huge(cfg.data_len, &mh);
 		if (!data)
 			return -ENOMEM;
-			memset(data, cfg.prefill, cfg.data_len);
+		memset(data, cfg.prefill, cfg.data_len);
 		
 			__u64* u64data = (__u64*)data;
 		for(int i = 0; i < layout->extent_count; i++) {

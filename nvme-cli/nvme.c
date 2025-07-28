@@ -8939,6 +8939,8 @@ static int passthru(int argc, char **argv, bool admin,
 			u64data[2*i] = (__u64)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (__u64)ext->lba_count; // 블록 개수
 		}
+
+		free_file_layout(layout);
 		
 		/*
 		if (!cfg.read && !cfg.write) {

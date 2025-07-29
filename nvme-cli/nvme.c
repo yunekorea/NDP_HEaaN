@@ -8918,9 +8918,10 @@ static int passthru(int argc, char **argv, bool admin,
                     free_file_layout(layout);
     }
 	
-	if (cfg.opcode == 0xe1) { //HEaaN Ciphertext Add custom OPC
+	if (cfg.opcode == 0xe0) { //HEaaN Ciphertext Add custom OPC
 		char *filename = cfg.target_file;
 		file_layout_t *layout = get_file_layout(filename);
+		printf("get file layout complete.\n");
 		if(!layout) {
 			fprintf(stderr, "Failed to get file layout\n");
 			return 1;
@@ -8929,18 +8930,22 @@ static int passthru(int argc, char **argv, bool admin,
 
 		cfg.data_len = 8192;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
+		printf("nvme_alloc_huge complete\n");
 		if (!data)
 			return -ENOMEM;
 		memset(data, cfg.prefill, cfg.data_len);
+		printf("memset complete\n");
 		
 			__u64* u64data = (__u64*)data;
 		for(int i = 0; i < layout->extent_count; i++) {
 			extent_info_t *ext = &layout->extents[i];
 			u64data[2*i] = (__u64)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (__u64)ext->lba_count; // 블록 개수
+			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 
 		free_file_layout(layout);
+		printf("free_file_layout complete\n");
 		
 		/*
 		if (!cfg.read && !cfg.write) {
@@ -8957,21 +8962,6 @@ static int passthru(int argc, char **argv, bool admin,
 		goto skip_data_fill;
 	}
 
-	if (cfg.metadata_len) {
-		mdata = malloc(cfg.metadata_len);
-		if (!mdata)
-			return -ENOMEM;
-
-		if (cfg.write) {
-			if (read(mfd, mdata, cfg.metadata_len) < 0) {
-				err = -errno;
-				nvme_show_perror("failed to read metadata write buffer");
-				return err;
-			}
-		} else {
-			memset(mdata, cfg.prefill, cfg.metadata_len);
-		}
-	}
 
 	if (cfg.data_len) {
 		data = nvme_alloc_huge(cfg.data_len, &mh);
@@ -8992,6 +8982,22 @@ static int passthru(int argc, char **argv, bool admin,
 	}
 
 	skip_data_fill:
+	
+	if (cfg.metadata_len) {
+		mdata = malloc(cfg.metadata_len);
+		if (!mdata)
+			return -ENOMEM;
+
+		if (cfg.write) {
+			if (read(mfd, mdata, cfg.metadata_len) < 0) {
+				err = -errno;
+				nvme_show_perror("failed to read metadata write buffer");
+				return err;
+			}
+		} else {
+			memset(mdata, cfg.prefill, cfg.metadata_len);
+		}
+	}
 
 
 	if (cfg.show_command || cfg.dry_run) {
@@ -9038,7 +9044,8 @@ static int passthru(int argc, char **argv, bool admin,
 				       cfg.cdw15, cfg.data_len, data,
 				       cfg.metadata_len,
 				       mdata, nvme_cfg.timeout, &result);
-
+	
+	printf("nvme_io_passthru complete. err = %d\n", err);
 	gettimeofday(&end_time, NULL);
 	cmd_name = nvme_cmd_to_string(admin, cfg.opcode);
 	if (cfg.latency)

@@ -1041,11 +1041,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
 	void* data = cmd->dptr.sgl1.address;
     uint32_t extents_count = cmd->cdw11; // Number of extents
+    fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
+    fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
 
 	uint64_t* u64data = (uint64_t*)data;
 	for(int i = 0; i < extents_count; i++) {
-		printf("LBA: %ld\n", u64data[2*i]);
-		printf("Len: %ld\n", u64data[2*i+1]);
+    	fprintf(stdout, "LBA: %ld\n", u64data[2*i]);
+    	fprintf(stdout, "Len: %ld\n", u64data[2*i+1]);
 	}
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
 	response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;

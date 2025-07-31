@@ -8919,6 +8919,7 @@ static int passthru(int argc, char **argv, bool admin,
     }
 	
 	if (cfg.opcode == 0xe0) { //HEaaN Ciphertext Add custom OPC
+		cfg.write = true;
 		char *filename = cfg.target_file;
 		file_layout_t *layout = get_file_layout(filename);
 		printf("get file layout complete.\n");

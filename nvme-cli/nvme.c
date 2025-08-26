@@ -9022,6 +9022,11 @@ static int passthru(int argc, char **argv, bool admin,
 	}
 	if (cfg.dry_run)
 		return 0;
+	
+	fprintf(stdout, "Host: About to send command 0x%02x\n", cfg.opcode);
+	fprintf(stdout, "Host: Data buffer pointer: %p\n", data);
+	fprintf(stdout, "Host: Data buffer length: %u\n", cfg.data_len);
+	fprintf(stdout, "Host: Write flag is set: %s\n", cfg.write ? "true" : "false");
 
 	gettimeofday(&start_time, NULL);
 

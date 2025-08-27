@@ -1040,7 +1040,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
 
 	//void* data = cmd->dptr.sgl1.address;
-    //uint32_t extents_count = cmd->cdw11; // Number of extents
+    uint32_t extents_count = cmd->cdw11; // Number of extents
     //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
  	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
 	
@@ -1068,15 +1068,15 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
     // Add more logging to confirm data is received
     SPDK_NOTICELOG("First 64 bytes of received data:\n");
-    spdk_trace_dump(stdout, data_buf_ptr, spdk_min(first_iov_len, (size_t)64));
+	//spdk_log_dump("Received data", data_buf_ptr, spdk_min(first_iov_len, (size_t)64));
 
-	/*
-	uint64_t* u64data = (uint64_t*)data;
+	
+	uint64_t* u64data = (uint64_t*)data_buf_ptr;
 	for(int i = 0; i < extents_count; i++) {
     	fprintf(stdout, "LBA: %ld\n", u64data[2*i]);
     	fprintf(stdout, "Len: %ld\n", u64data[2*i+1]);
 	}
-	*/
+	
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
 	response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 	return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;

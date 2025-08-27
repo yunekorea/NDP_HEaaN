@@ -1043,6 +1043,9 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     //uint32_t extents_count = cmd->cdw11; // Number of extents
     //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
  	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
+	
+	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
+    uint32_t num_iovs = req->iovcnt;
 	fprintf(stdout, "C_HEAAN_ADD: Total Data Transfer Length: %u bytes\n", total_data_len);
     fprintf(stdout, "C_HEAAN_ADD: Number of IOVs: %u\n", num_iovs);
 
@@ -1067,11 +1070,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     SPDK_NOTICELOG("First 64 bytes of received data:\n");
     spdk_trace_dump(stdout, data_buf_ptr, spdk_min(first_iov_len, (size_t)64));
 
+	/*
 	uint64_t* u64data = (uint64_t*)data;
 	for(int i = 0; i < extents_count; i++) {
     	fprintf(stdout, "LBA: %ld\n", u64data[2*i]);
     	fprintf(stdout, "Len: %ld\n", u64data[2*i+1]);
 	}
+	*/
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
 	response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 	return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;

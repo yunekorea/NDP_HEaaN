@@ -1039,10 +1039,33 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
 
-	void* data = cmd->dptr.sgl1.address;
-    uint32_t extents_count = cmd->cdw11; // Number of extents
-    fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
-    fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
+	//void* data = cmd->dptr.sgl1.address;
+    //uint32_t extents_count = cmd->cdw11; // Number of extents
+    //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
+ 	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
+	fprintf(stdout, "C_HEAAN_ADD: Total Data Transfer Length: %u bytes\n", total_data_len);
+    fprintf(stdout, "C_HEAAN_ADD: Number of IOVs: %u\n", num_iovs);
+
+    // CRITICAL: Check for a valid pointer before using it.
+    // The previous crash was likely because this condition was not met.
+    if (total_data_len == 0 || num_iovs == 0 || req->iov[0].iov_base == NULL) {
+        SPDK_ERRLOG("Custom command 0xE0: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
+        response->status.sct = SPDK_NVME_SCT_GENERIC;
+        response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+        return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    }
+
+    // Now, with the safety check, you can safely access the buffer.
+    void *data_buf_ptr = req->iov[0].iov_base;
+    size_t first_iov_len = req->iov[0].iov_len;
+    
+    // Your original print statements are now safe.
+    fprintf(stdout, "C_HEAAN_ADD: First IOV Buffer Address: %p\n", data_buf_ptr);
+    fprintf(stdout, "C_HEAAN_ADD: First IOV Length: %zu bytes\n", first_iov_len);
+
+    // Add more logging to confirm data is received
+    SPDK_NOTICELOG("First 64 bytes of received data:\n");
+    spdk_trace_dump(stdout, data_buf_ptr, spdk_min(first_iov_len, (size_t)64));
 
 	uint64_t* u64data = (uint64_t*)data;
 	for(int i = 0; i < extents_count; i++) {

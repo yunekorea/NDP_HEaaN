@@ -1079,7 +1079,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
     response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;
-    return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    //return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 }
 
 int

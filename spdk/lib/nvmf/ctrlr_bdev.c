@@ -469,7 +469,7 @@ nvmf_bdev_ctrlr_read_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
 
 	nvmf_bdev_ctrlr_get_rw_params(cmd, &start_lba, &num_blocks);
 
-	nvmf_print_iov(req, req->length);
+	//nvmf_print_iov(req, req->length);
 
 	uint32_t meta_start_lba = cmd->cdw10; // 연산 메타데이터 파일의 LBA 시작 주소
     uint32_t meta_block_count = cmd->cdw11; // 연산 메타데이터 파일의 블록 갯수

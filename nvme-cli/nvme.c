@@ -8771,6 +8771,30 @@ void free_file_layout(file_layout_t *layout) {
     }
 }
 
+void dump_hex(const char *label, const void *data, size_t len)
+{
+    const unsigned char *p = (const unsigned char *)data;
+    size_t i, j;
+
+    fprintf(stdout, "%s:\n", label);
+    for (i = 0; i < len; i += 16) {
+        fprintf(stdout, "%08zx ", i);
+        for (j = 0; j < 16 && i + j < len; j++) {
+            fprintf(stdout, "%02x ", p[i + j]);
+        }
+        while (j < 16) {
+            fprintf(stdout, "   ");
+            j++;
+        }
+        fprintf(stdout, " ");
+        for (j = 0; j < 16 && i + j < len; j++) {
+            int c = p[i + j];
+            fprintf(stdout, "%c", (c >= 32 && c <= 126) ? c : '.');
+        }
+        fprintf(stdout, "\n");
+    }
+}
+
 static int passthru(int argc, char **argv, bool admin,
 		const char *desc, struct command *cmd)
 {
@@ -8944,6 +8968,7 @@ static int passthru(int argc, char **argv, bool admin,
 			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
 			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
+		dump_hex("Buffer Content (Host)", data, 64);
 
 		free_file_layout(layout);
 		printf("free_file_layout complete\n");

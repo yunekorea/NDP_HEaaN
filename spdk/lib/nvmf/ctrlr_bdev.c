@@ -1073,8 +1073,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	for(int i = 0; i < extents_count; i++) {
-    	fprintf(stdout, "LBA: %ld\n", u64data[2*i]);
-    	fprintf(stdout, "Len: %ld\n", u64data[2*i+1]);
+    	fprintf(stdout, "LBA: %lld\n", u64data[2*i]);
+    	fprintf(stdout, "Len: %lld\n", u64data[2*i+1]);
 	}
 
     response->status.sct = SPDK_NVME_SCT_GENERIC;

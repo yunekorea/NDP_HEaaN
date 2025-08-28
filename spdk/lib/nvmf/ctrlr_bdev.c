@@ -462,10 +462,12 @@ nvmf_bdev_ctrlr_read_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
 	uint64_t num_blocks;
 	int rc;
 
-	//debug log
+	/* printing logs for debugging */
+	/*
 	fprintf(stdout, "Opcode: 0x%x\n", cmd->opc);
     fprintf(stdout, "req->iovcnt: %u\n", req->iovcnt);
     fprintf(stdout, "req->length: %u\n", req->length);
+	*/
 
 	nvmf_bdev_ctrlr_get_rw_params(cmd, &start_lba, &num_blocks);
 
@@ -477,11 +479,14 @@ nvmf_bdev_ctrlr_read_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
     uint32_t target_block_count = cmd->cdw13; // 연산 대상 파일의 블록 갯수
     uint32_t target_block_cot = cmd->cdw14; // 연산 대상 파일의 블록 갯수
 
-    fprintf(stdout, " from CDW10: %u\n", meta_start_lba);
+	/* printing logs for debugging */
+	/*
+	fprintf(stdout, " from CDW10: %u\n", meta_start_lba);
     fprintf(stdout, " from CDW11: %u\n", meta_block_count);
     fprintf(stdout, " from CDW12: %u\n", target_start_lba);
     fprintf(stdout, " from CDW13: %u\n", target_block_count);
     fprintf(stdout, " from CDW14: %u\n", target_block_cot);
+	*/
 
 //	fprintf(stdout, "start_lba: %u\n", start_lba);
 //    fprintf(stdout, "num_blocks: %u\n", num_blocks);

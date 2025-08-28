@@ -2732,7 +2732,8 @@ _nvmf_tcp_send_c2h_data(struct spdk_nvmf_tcp_qpair *tqpair,
 	rsp_pdu = tcp_req->pdu;
 	assert(rsp_pdu != NULL);
 
-	/*디버그 용 코드*/
+	/*For debugging*/
+	/*
 	uint32_t tc = 0;
 	uint32_t data_len = 4096;
     fprintf(stdout, "_nvmf_tcp_send_c2h_data Data content: \n");
@@ -2747,6 +2748,7 @@ _nvmf_tcp_send_c2h_data(struct spdk_nvmf_tcp_qpair *tqpair,
         fprintf(stdout, "\n");
         tc += copy_len;
     }
+	*/
 
 	c2h_data = &rsp_pdu->hdr.c2h_data;
 	c2h_data->common.pdu_type = SPDK_NVME_TCP_PDU_TYPE_C2H_DATA;

@@ -1032,6 +1032,30 @@ nvmf_bdev_ctrlr_custom_echo_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *d
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }
 
+void dump_hex(const char *label, const void *data, size_t len)
+{
+    const unsigned char *p = (const unsigned char *)data;
+    size_t i, j;
+
+    fprintf(stdout, "%s:\n", label);
+    for (i = 0; i < len; i += 16) {
+        fprintf(stdout, "%08zx ", i);
+        for (j = 0; j < 16 && i + j < len; j++) {
+            fprintf(stdout, "%02x ", p[i + j]);
+        }
+        while (j < 16) {
+            fprintf(stdout, "   ");
+            j++;
+        }
+        fprintf(stdout, " ");
+        for (j = 0; j < 16 && i + j < len; j++) {
+            int c = p[i + j];
+            fprintf(stdout, "%c", (c >= 32 && c <= 126) ? c : '.');
+        }
+        fprintf(stdout, "\n");
+    }
+}
+
 int
 nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
                                 struct spdk_io_channel *ch, struct spdk_nvmf_request *req)
@@ -1066,10 +1090,14 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     fprintf(stdout, "C_HEAAN_ADD: First IOV Buffer Address: %p\n", data_buf_ptr);
     fprintf(stdout, "C_HEAAN_ADD: First IOV Length: %zu bytes\n", first_iov_len);
 
+	fprintf(stdout, "Opcode: 0x%02x\n", cmd->opc);
+
+
     // Add more logging to confirm data is received
     SPDK_NOTICELOG("First 64 bytes of received data:\n");
 	//spdk_log_dump("Received data", data_buf_ptr, spdk_min(first_iov_len, (size_t)64));
 
+	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 64);
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	for(int i = 0; i < extents_count; i++) {

@@ -671,8 +671,9 @@ spdk_nvmf_req_get_xfer(struct spdk_nvmf_request *req) {
         return SPDK_NVME_DATA_CONTROLLER_TO_HOST;
     }
 
-	if (cmd->opc == 0xE1) { // HEaaN Cipadd command
-        return SPDK_NVME_DATA_HOST_TO_CONTROLLER;
+	if (cmd->opc == 0xE0) { // HEaaN Cipadd command
+        //return SPDK_NVME_DATA_HOST_TO_CONTROLLER;
+        return SPDK_NVME_DATA_CONTROLLER_TO_HOST;
 	}
 
 	/* Figure out data transfer direction */

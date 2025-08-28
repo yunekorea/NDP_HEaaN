@@ -8937,11 +8937,11 @@ static int passthru(int argc, char **argv, bool admin,
 		memset(data, cfg.prefill, cfg.data_len);
 		printf("memset complete\n");
 		
-			__u64* u64data = (__u64*)data;
+			uint64_t* u64data = (uint64_t*)data;
 		for(int i = 0; i < layout->extent_count; i++) {
 			extent_info_t *ext = &layout->extents[i];
-			u64data[2*i] = (__u64)ext->lba_start; // 시작 LBA
-			u64data[2*i+1] = (__u64)ext->lba_count; // 블록 개수
+			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
+			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
 			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 

@@ -2556,7 +2556,7 @@ nvmf_tcp_req_parse_sgl(struct spdk_nvmf_tcp_req *tcp_req,
 
 	if (sgl->generic.type == SPDK_NVME_SGL_TYPE_TRANSPORT_DATA_BLOCK &&
 	    sgl->unkeyed.subtype == SPDK_NVME_SGL_SUBTYPE_TRANSPORT) {
-	    printf("1\n");
+	    //printf("1\n");
 		/* get request length from sgl */
 		length = sgl->unkeyed.length;
 		if (spdk_unlikely(length > transport->opts.max_io_size)) {
@@ -2597,7 +2597,7 @@ nvmf_tcp_req_parse_sgl(struct spdk_nvmf_tcp_req *tcp_req,
 	} else if (sgl->generic.type == SPDK_NVME_SGL_TYPE_DATA_BLOCK &&
 		   sgl->unkeyed.subtype == SPDK_NVME_SGL_SUBTYPE_OFFSET) {
 
-		   printf("2\n");
+		   //printf("2\n");
 		uint64_t offset = sgl->address;
 		uint32_t max_len = transport->opts.in_capsule_data_size;
 //		printf("sgl max len: %d\n", max_len);
@@ -2655,7 +2655,7 @@ nvmf_tcp_req_parse_sgl(struct spdk_nvmf_tcp_req *tcp_req,
 				goto fatal_err;
 			}
 		} else {
-		    printf("4\n");
+		    //printf("4\n");
 			req->iov[0].iov_base = tcp_req->buf;
 		}
 

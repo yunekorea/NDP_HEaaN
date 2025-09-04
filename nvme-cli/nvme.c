@@ -8946,7 +8946,6 @@ static int passthru(int argc, char **argv, bool admin,
 		cfg.write = true;
 		char *filename = cfg.target_file;
 		file_layout_t *layout = get_file_layout(filename);
-		printf("get file layout complete.\n");
 		if(!layout) {
 			fprintf(stderr, "Failed to get file layout\n");
 			return 1;
@@ -8955,11 +8954,9 @@ static int passthru(int argc, char **argv, bool admin,
 
 		cfg.data_len = 8192;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
-		printf("nvme_alloc_huge complete\n");
 		if (!data)
 			return -ENOMEM;
 		memset(data, cfg.prefill, cfg.data_len);
-		printf("memset complete\n");
 		
 			uint64_t* u64data = (uint64_t*)data;
 		for(int i = 0; i < layout->extent_count; i++) {
@@ -8971,20 +8968,7 @@ static int passthru(int argc, char **argv, bool admin,
 		dump_hex("Buffer Content (Host)", data, 64);
 
 		free_file_layout(layout);
-		printf("free_file_layout complete\n");
 		
-		/*
-		if (!cfg.read && !cfg.write) {
-			nvme_show_error("data direction not given");
-			return -EINVAL;
-		} else if (cfg.write) {
-			if (read(dfd, data, cfg.data_len) < 0) {
-				err = -errno;
-				nvme_show_error("failed to read write buffer %s", strerror(errno));
-				return err;
-			}
-		}
-		*/
 		goto skip_data_fill;
 	}
 

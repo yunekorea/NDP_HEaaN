@@ -1069,7 +1069,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
 
 	//void* data = cmd->dptr.sgl1.address;
-    uint32_t extents_count = cmd->cdw11; // Number of extents
+    uint32_t input_0_extents_count = cmd->cdw11; // Number of extents of inputfile_0
+    uint32_t input_1_extents_count = cmd->cdw12; // Number of extents of inputfile_1
+    uint32_t target_extents_count = cmd->cdw13; // Number of extents of targetfile
+
     //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
  	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
 	
@@ -1105,9 +1108,23 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 64);
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
-	for(int i = 0; i < extents_count; i++) {
-    	fprintf(stdout, "LBA: %lld\n", u64data[2*i]);
-    	fprintf(stdout, "Len: %lld\n", u64data[2*i+1]);
+	uint32_t buf_num = 0;
+	for(int i = 0; i < input_0_extents_count; i++) {
+    	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[2*buf_num]);
+    	fprintf(stdout, "IN 0 Len: %lld\n", u64data[2*buf_num+1]);
+		buf_num++;
+	}
+	
+	for(int i = 0; i < input_1_extents_count; i++) {
+    	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[2*buf_num]);
+    	fprintf(stdout, "IN 1 Len: %lld\n", u64data[2*buf_num+1]);
+		buf_num++;
+	}
+	
+	for(int i = 0; i < target_extents_count; i++) {
+    	fprintf(stdout, "TGT LBA: %lld\n", u64data[2*buf_num]);
+    	fprintf(stdout, "TGT Len: %lld\n", u64data[2*buf_num+1]);
+		buf_num++;
 	}
 
     response->status.sct = SPDK_NVME_SCT_GENERIC;

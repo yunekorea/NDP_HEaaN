@@ -8900,6 +8900,8 @@ static int passthru(int argc, char **argv, bool admin,
 		dfd = mfd = STDOUT_FILENO;
 	}
 	
+	if(cfg.opcode == 0xe0)
+		goto skip_input_file_open;
 	if (strlen(cfg.input_file)) {
 		dfd = open(cfg.input_file, flags, mode);
 		if (dfd < 0) {
@@ -8907,6 +8909,7 @@ static int passthru(int argc, char **argv, bool admin,
 			return -EINVAL;
 		}
 	}
+	skip_input_file_open:
 
 	if (cfg.metadata && strlen(cfg.metadata)) {
 		mfd = open(cfg.metadata, flags, mode);
@@ -8944,13 +8947,44 @@ static int passthru(int argc, char **argv, bool admin,
 	
 	if (cfg.opcode == 0xe0) { //HEaaN Ciphertext Add custom OPC
 		cfg.write = true;
-		char *filename = cfg.target_file;
-		file_layout_t *layout = get_file_layout(filename);
-		if(!layout) {
+		char* input_names = cfg.input_file;
+		char* input_0_name = strtok(input_names, "|");
+		if(!input_0_name) {
+			fprintf(stderr, "Failed to get input file 0 name.\n");
+			return -EINVAL;
+		}
+		char* input_1_name = strtok(NULL, "|");
+		if(!input_1_name) {
+			fprintf(stderr, "Failed to get input file 1 name.\n");
+			return -EINVAL;
+		}
+		if(strtok(NULL, "|") != NULL) {
+			fprintf(stderr, "Too many input file arguments.\n");
+			return -EINVAL;
+		}
+		
+		char* target_name = cfg.target_file;
+		
+		file_layout_t *input_0_layout = get_file_layout(input_0_name);
+		if(!input_0_layout) {
 			fprintf(stderr, "Failed to get file layout\n");
 			return 1;
 		}
-		cfg.cdw11 = (__u32)layout->extent_count;
+		cfg.cdw11 = (__u32)input_0_layout->extent_count;
+
+		file_layout_t *input_1_layout = get_file_layout(input_1_name);
+		if(!input_1_layout) {
+			fprintf(stderr, "Failed to get file layout\n");
+			return 1;
+		}
+		cfg.cdw12 = (__u32)input_1_layout->extent_count;
+
+		file_layout_t *target_layout = get_file_layout(target_name);
+		if(!target_layout) {
+			fprintf(stderr, "Failed to get file layout\n");
+			return 1;
+		}
+		cfg.cdw13 = (__u32)target_layout->extent_count;
 
 		cfg.data_len = 8192;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
@@ -8958,16 +8992,31 @@ static int passthru(int argc, char **argv, bool admin,
 			return -ENOMEM;
 		memset(data, cfg.prefill, cfg.data_len);
 		
-			uint64_t* u64data = (uint64_t*)data;
-		for(int i = 0; i < layout->extent_count; i++) {
-			extent_info_t *ext = &layout->extents[i];
+		uint64_t* u64data = (uint64_t*)data;
+		uint32_t i = 0;
+		for(; i < input_0_layout->extent_count; i++) {
+			extent_info_t *ext = &input_0_layout->extents[i];
+			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
+			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
+			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+		}
+		for(; i < input_1_layout->extent_count; i++) {
+			extent_info_t *ext = &input_1_layout->extents[i];
+			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
+			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
+			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+		}
+		for(; i < target_layout->extent_count; i++) {
+			extent_info_t *ext = &target_layout->extents[i];
 			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
 			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 		dump_hex("Buffer Content (Host)", data, 64);
 
-		free_file_layout(layout);
+		free_file_layout(input_0_layout);
+		free_file_layout(input_1_layout);
+		free_file_layout(target_layout);
 		
 		goto skip_data_fill;
 	}

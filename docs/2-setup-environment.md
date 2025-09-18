@@ -41,26 +41,33 @@ sudo ./configure
 sudo make -j `nproc`
 ```
 
-3. Hugepage를 설정합니다.
+3. NDP 플랫폼에서 사용할 NVMe SSD를 커널 드라이버로부터 분리합니다.
 ```shell
-sudo HUGEMEM=4096 scripts/setup.sh # Hugepage의 크기는 필요량에 따라 적절히 설정합니다.
+echo <pcie_device_address>(ex. 0000:3c:00.0) | sudo tee /sys/bus/pci/devices/<pcie_device_address>/driver/unbind 
+```
+   
+4. Hugepage를 설정하고 NVMe SSD를 vfio-pci로 연결합니다.
+```shell
+sudo HUGEMEM=8192 scripts/setup.sh # Hugepage의 크기는 필요량에 따라 적절히 설정합니다.
+sudo scripts/setup.sh status       # 장치가 vfio-pci로 연결됐는지 확인합니다.
 ```
 
-4. 빌드된 SPDK의 바이너리를 실행합니다.
+5. 빌드된 SPDK의 바이너리를 실행합니다.
 
 ```shell
 sudo build/bin/nvmf_tgt # 또는 명령어 뒤에 &를 붙여 백그라운드로 실행하세요(선택사항).
 ```
 
-5. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
+6. SPDK 내에 NVMe over Fabric TCP Target의 서브시스템을 구성합니다. 구체적으로, TCP Transport 및 Bdev 인터페이스를 구성합니다.
 
 ```shell
 # 새로운 쉘을 열고 아래 명령어들을 실행하세요.
 sudo sudo scripts/rpc.py nvmf_create_transport -t TCP -u 131072 -m 20 -c 8192 -i 2097152 # SPDK의 TCP Transport 스펙을 확인하여 구성하세요. 좌측에 나와있는 것은 참고만 하세요.
-sudo scripts/rpc.py bdev_malloc_create -b Malloc0 1024 4096
-sudo scripts/rpc.py nvmf_create_subsystem nqn.2016-06.io.spdk:cnode1 -a -s SPDK00000000000001 -d <device>(ex. /dev/nvme0n1)
-sudo scripts/rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 Malloc0
+sudo scripts/rpc.py bdev_nvme_attach_controller -b nvme0 -t pcie -a <pcie_device_address>(ex. 3c:00.0)
+sudo scripts/rpc.py nvmf_create_subsystem nqn.2016-06.io.spdk:cnode1 -a -s SPDK00000000000001 -d <device_name>(ex. "nvme0n1")
+sudo scripts/rpc.py nvmf_subsystem_add_ns nqn.2016-06.io.spdk:cnode1 <device_name>
 sudo scripts/rpc.py nvmf_subsystem_add_listener nqn.2016-06.io.spdk:cnode1 -t tcp -a <target ip>(ex. 192.168.0.5) -s <port>(ex. 4420)
+
 ```
 
 #### Host Side

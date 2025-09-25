@@ -1109,28 +1109,38 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t buf_num = 0;
-	for(int i = 0; i < input_0_extents_count; i++) {
+	uint64_t input_0_ext[input_0_extents_count * 2];
+	uint64_t input_1_ext[input_1_extents_count * 2];
+	uint64_t target_ext[target_extents_count * 2];
+	uint32_t iter = 0;
+	for(iter = 0; iter < input_0_extents_count; iter++) {
     	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "IN 0 Len: %lld\n", u64data[2*buf_num+1]);
+		input_0_ext[2*buf_num] = u64data[2*buf_num];
+		input_0_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
 		buf_num++;
 	}
 	
-	for(int i = 0; i < input_1_extents_count; i++) {
+	for(iter = 0; iter < input_1_extents_count; iter++) {
     	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "IN 1 Len: %lld\n", u64data[2*buf_num+1]);
+		input_1_ext[2*buf_num] = u64data[2*buf_num];
+		input_1_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
 		buf_num++;
 	}
 	
-	for(int i = 0; i < target_extents_count; i++) {
+	for(iter = 0; iter < target_extents_count; iter++) {
     	fprintf(stdout, "TGT LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "TGT Len: %lld\n", u64data[2*buf_num+1]);
+		target_ext[2*buf_num] = u64data[2*buf_num];
+		target_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
 		buf_num++;
 	}
 
     response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;
-    //return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
-    return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 }
 
 int

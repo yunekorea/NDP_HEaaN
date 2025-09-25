@@ -1067,6 +1067,11 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 {
     struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
+	
+	uint64_t bdev_num_blocks = spdk_bdev_get_num_blocks(bdev);
+	uint32_t block_size = spdk_bdev_get_block_size(bdev);
+	
+	void* buffer_address = NULL;
 
 	//void* data = cmd->dptr.sgl1.address;
     uint32_t input_0_extents_count = cmd->cdw11; // Number of extents of inputfile_0
@@ -1109,35 +1114,119 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t buf_num = 0;
+
 	uint64_t input_0_ext[input_0_extents_count * 2];
 	uint64_t input_1_ext[input_1_extents_count * 2];
 	uint64_t target_ext[target_extents_count * 2];
+
+	uint64_t input_0_size = 0;
+	uint64_t input_1_size = 0;
+	uint64_t target_size = 0;
+
 	uint32_t iter = 0;
 	for(iter = 0; iter < input_0_extents_count; iter++) {
     	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "IN 0 Len: %lld\n", u64data[2*buf_num+1]);
+		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+    		SPDK_ERRLOG("end of media\n");
+    		response->status.sct = SPDK_NVME_SCT_GENERIC;
+    		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
 		input_0_ext[2*buf_num] = u64data[2*buf_num];
 		input_0_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
+		input_0_size += u64data[2*buf_num + 1];
 		buf_num++;
 	}
 	
 	for(iter = 0; iter < input_1_extents_count; iter++) {
     	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "IN 1 Len: %lld\n", u64data[2*buf_num+1]);
+		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+    		SPDK_ERRLOG("end of media\n");
+    		response->status.sct = SPDK_NVME_SCT_GENERIC;
+    		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
 		input_1_ext[2*buf_num] = u64data[2*buf_num];
 		input_1_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
+		input_1_size += u64data[2*buf_num + 1]; 
 		buf_num++;
 	}
 	
 	for(iter = 0; iter < target_extents_count; iter++) {
     	fprintf(stdout, "TGT LBA: %lld\n", u64data[2*buf_num]);
     	fprintf(stdout, "TGT Len: %lld\n", u64data[2*buf_num+1]);
+		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+    		SPDK_ERRLOG("end of media\n");
+    		response->status.sct = SPDK_NVME_SCT_GENERIC;
+    		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
 		target_ext[2*buf_num] = u64data[2*buf_num];
 		target_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
+		target_size += u64data[2*buf_num + 1]; 
 		buf_num++;
 	}
 
-    response->status.sct = SPDK_NVME_SCT_GENERIC;
+	void* input_0_buffer = malloc(input_0_size * block_size);
+	void* input_1_buffer = malloc(input_1_size * block_size);
+	void* target_buffer = malloc(target_size * block_size);
+
+	int load_result = 0;
+
+	buffer_address = input_0_buffer;
+	for(iter = 0; iter < input_0_extents_count; iter++) {
+		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_0_ext[2 * iter], input_0_ext[2 * iter + 1], NULL, NULL);
+		buffer_address += input_0_ext[2 * iter + 1] * block_size;
+		if(load_result != 0) {
+			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			free(input_0_buffer);
+			free(input_1_buffer);
+			free(target_buffer);
+			response->status.sct = SPDK_NVME_SCT_GENERIC;
+			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
+	}
+
+	buffer_address = input_1_buffer;
+	for(iter = 0; iter < input_1_extents_count; iter++) {
+		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_1_ext[2 * iter], input_1_ext[2 * iter + 1], NULL, NULL);
+		buffer_address += input_1_ext[2 * iter + 1] * block_size;
+		if(load_result != 0) {
+			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			free(input_0_buffer);
+			free(input_1_buffer);
+			free(target_buffer);
+			response->status.sct = SPDK_NVME_SCT_GENERIC;
+			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
+	}
+	buffer_address = target_buffer;
+	for(iter = 0; iter < target_extents_count; iter++) {
+		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, target_ext[2 * iter], target_ext[2 * iter + 1], NULL, NULL);
+		buffer_address += target_ext[2 * iter + 1] * block_size;
+		if(load_result != 0) {
+			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			free(input_0_buffer);
+			free(input_1_buffer);
+			free(target_buffer);
+			response->status.sct = SPDK_NVME_SCT_GENERIC;
+			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+		}
+	}
+	
+	free(input_0_buffer);
+	free(input_1_buffer);
+	free(target_buffer);
+    
+	response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
     //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;

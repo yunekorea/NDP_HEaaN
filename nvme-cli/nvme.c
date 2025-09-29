@@ -8947,12 +8947,15 @@ static int passthru(int argc, char **argv, bool admin,
 	
 	if (cfg.opcode == 0xe0) { //HEaaN Ciphertext Add custom OPC
 		cfg.write = true;
-		char* input_names = cfg.input_file;
-		char* input_0_name = strtok(input_names, "|");
+		//char* input_names = cfg.input_file;
+		//char* input_0_name = strtok(input_names, "|");
+		char* input_0_name = cfg.input_file;
 		if(!input_0_name) {
 			fprintf(stderr, "Failed to get input file 0 name.\n");
 			return -EINVAL;
 		}
+		
+		/*
 		char* input_1_name = strtok(NULL, "|");
 		if(!input_1_name) {
 			fprintf(stderr, "Failed to get input file 1 name.\n");
@@ -8961,8 +8964,11 @@ static int passthru(int argc, char **argv, bool admin,
 		if(strtok(NULL, "|") != NULL) {
 			fprintf(stderr, "Too many input file arguments.\n");
 			return -EINVAL;
-		}
-		
+		}*/
+
+		char* input_1_name = cfg.metadata;
+		cfg.metadata = NULL;
+		cfg.metadata_len = 0;
 		char* target_name = cfg.target_file;
 		
 		file_layout_t *input_0_layout = get_file_layout(input_0_name);
@@ -9057,6 +9063,7 @@ static int passthru(int argc, char **argv, bool admin,
 			memset(mdata, cfg.prefill, cfg.metadata_len);
 		}
 	}
+	skip_data_fill:
 
 
 	if (cfg.show_command || cfg.dry_run) {

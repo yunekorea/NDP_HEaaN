@@ -9046,8 +9046,6 @@ static int passthru(int argc, char **argv, bool admin,
 		}
 	}
 
-	skip_data_fill:
-	
 	if (cfg.metadata_len) {
 		mdata = malloc(cfg.metadata_len);
 		if (!mdata)

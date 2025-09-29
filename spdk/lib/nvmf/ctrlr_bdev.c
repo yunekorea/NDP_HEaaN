@@ -1179,11 +1179,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	int load_result = 0;
 
 	buffer_address = input_0_buffer;
+	fprintf(stdout, "INPUT0 - Buffer load start\n");
 	for(iter = 0; iter < input_0_extents_count; iter++) {
 		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_0_ext[2 * iter], input_0_ext[2 * iter + 1], NULL, NULL);
 		buffer_address += input_0_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
-			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			SPDK_ERRLOG("INPUT0 - Buffer Load Error No: %d\n", load_result);
 			free(input_0_buffer);
 			free(input_1_buffer);
 			free(target_buffer);
@@ -1193,12 +1194,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		}
 	}
 
+	fprintf(stdout, "INPUT1 - Buffer load start\n");
 	buffer_address = input_1_buffer;
 	for(iter = 0; iter < input_1_extents_count; iter++) {
 		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_1_ext[2 * iter], input_1_ext[2 * iter + 1], NULL, NULL);
 		buffer_address += input_1_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
-			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			SPDK_ERRLOG("INPUT1 - Buffer Load Error No: %d\n", load_result);
 			free(input_0_buffer);
 			free(input_1_buffer);
 			free(target_buffer);
@@ -1207,12 +1209,14 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
+
+	fprintf(stdout, "TARGET - Buffer load start\n");
 	buffer_address = target_buffer;
 	for(iter = 0; iter < target_extents_count; iter++) {
 		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, target_ext[2 * iter], target_ext[2 * iter + 1], NULL, NULL);
 		buffer_address += target_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
-			SPDK_ERRLOG("Buffer Load Error No: %d\n", load_result);
+			SPDK_ERRLOG("TARGET - Buffer Load Error No: %d\n", load_result);
 			free(input_0_buffer);
 			free(input_1_buffer);
 			free(target_buffer);

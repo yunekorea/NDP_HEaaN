@@ -8970,6 +8970,8 @@ static int passthru(int argc, char **argv, bool admin,
 		cfg.metadata = NULL;
 		cfg.metadata_len = 0;
 		char* target_name = cfg.target_file;
+
+
 		
 		file_layout_t *input_0_layout = get_file_layout(input_0_name);
 		if(!input_0_layout) {
@@ -9000,23 +9002,32 @@ static int passthru(int argc, char **argv, bool admin,
 		
 		uint64_t* u64data = (uint64_t*)data;
 		uint32_t i = 0;
+		uint32_t bufnum = 0;
+		printf("INPUT0 name: %s\n", input_0_name);
 		for(; i < input_0_layout->extent_count; i++) {
 			extent_info_t *ext = &input_0_layout->extents[i];
-			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
-			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("INPUT0 - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			u64data[2*bufnum] = (uint64_t)ext->lba_start;
+			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
+			printf("INPUT0 - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			bufnum++;
 		}
+		i = 0;
+		printf("INPUT1 name: %s\n", input_1_name);
 		for(; i < input_1_layout->extent_count; i++) {
 			extent_info_t *ext = &input_1_layout->extents[i];
-			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
-			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("INPUT1 - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			u64data[2*bufnum] = (uint64_t)ext->lba_start;
+			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
+			printf("INPUT1 - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			bufnum++;
 		}
+		i = 0;
+		printf("TARGET name: %s\n", target_name);
 		for(; i < target_layout->extent_count; i++) {
 			extent_info_t *ext = &target_layout->extents[i];
-			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
-			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("TARGET - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			u64data[2*bufnum] = (uint64_t)ext->lba_start;
+			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
+			printf("TARGET - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			bufnum++;
 		}
 		dump_hex("Buffer Content (Host)", data, 64);
 

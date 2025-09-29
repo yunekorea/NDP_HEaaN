@@ -9004,19 +9004,19 @@ static int passthru(int argc, char **argv, bool admin,
 			extent_info_t *ext = &input_0_layout->extents[i];
 			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			printf("INPUT0 - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 		for(; i < input_1_layout->extent_count; i++) {
 			extent_info_t *ext = &input_1_layout->extents[i];
 			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			printf("INPUT1 - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 		for(; i < target_layout->extent_count; i++) {
 			extent_info_t *ext = &target_layout->extents[i];
 			u64data[2*i] = (uint64_t)ext->lba_start; // 시작 LBA
 			u64data[2*i+1] = (uint64_t)ext->lba_count; // 블록 개수
-			printf("lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
+			printf("TARGET - lba : %lld\t count : %lld\n", u64data[2*i], u64data[2*i+1]);
 		}
 		dump_hex("Buffer Content (Host)", data, 64);
 

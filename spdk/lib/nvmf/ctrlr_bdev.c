@@ -1092,7 +1092,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
         SPDK_ERRLOG("Custom command 0xE0: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
         response->status.sct = SPDK_NVME_SCT_GENERIC;
         response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
-        return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    	return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+        //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
     }
 
     // Now, with the safety check, you can safely access the buffer.
@@ -1132,7 +1133,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
-    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 		input_0_ext[2*buf_num] = u64data[2*buf_num];
 		input_0_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
@@ -1148,7 +1150,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
-    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 		input_1_ext[2*buf_num] = u64data[2*buf_num];
 		input_1_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
@@ -1164,7 +1167,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
-    		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 		target_ext[2*buf_num] = u64data[2*buf_num];
 		target_ext[2*buf_num + 1] = u64data[2*buf_num + 1];
@@ -1172,9 +1176,9 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		buf_num++;
 	}
 
-	void* input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size);
-	void* input_1_buffer = spdk_dma_zmalloc(input_1_size * block_size);
-	void* target_buffer = spdk_dma_zmalloc(target_size * block_size);
+	void* input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size, 0, NULL);
+	void* input_1_buffer = spdk_dma_zmalloc(input_1_size * block_size, 0, NULL);
+	void* target_buffer = spdk_dma_zmalloc(target_size * block_size, 0, NULL);
 
 	int load_result = 0;
 
@@ -1190,7 +1194,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
-			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+			//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
 
@@ -1206,7 +1211,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
-			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+			//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
 
@@ -1222,7 +1228,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
-			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+			//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
 

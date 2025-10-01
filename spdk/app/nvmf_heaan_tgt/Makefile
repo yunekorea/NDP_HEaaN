@@ -35,6 +35,9 @@ LDLIBS += -L$(SPDK_ROOT_DIR)/lib/heaan
 # The '-l' flag tells the linker to link against 'libHEaaN.a'.
 LDLIBS += -lHEaaN
 
+# Includes C++ runtime library
+LDLIBS += -lstdc++
+
 # !@Gemini@! --- END HEaaN INTEGRATION MODIFICATIONS ---
 
 include $(SPDK_ROOT_DIR)/mk/spdk.app.mk

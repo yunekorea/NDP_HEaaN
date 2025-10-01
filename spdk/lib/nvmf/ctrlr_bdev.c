@@ -22,6 +22,8 @@
 
 #include "spdk/log.h"
 
+#include "heaan/HEaaN_CWrapper.h"
+
 struct custom_grep_ctx {
     struct spdk_nvmf_request *req;
     char *buffer;

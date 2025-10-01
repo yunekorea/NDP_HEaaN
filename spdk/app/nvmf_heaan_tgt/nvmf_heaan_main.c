@@ -4,7 +4,7 @@
  */
 
 #include "spdk/stdinc.h"
-
+#include "heaan/HEaaN_CWrapper.h"
 #include "spdk/env.h"
 #include "spdk/event.h"
 

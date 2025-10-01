@@ -1081,6 +1081,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
  	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
 	
+	fprintf(stdout, "C_HEAAN_ADD : Entered and started.\n");
 	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
     uint32_t num_iovs = req->iovcnt;
 	fprintf(stdout, "C_HEAAN_ADD: Total Data Transfer Length: %u bytes\n", total_data_len);

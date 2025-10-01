@@ -21,6 +21,22 @@ ifeq ($(OS),Linux)
 SPDK_LIB_LIST += event_nbd
 endif
 
+# !@Gemini@! --- START HEaaN INTEGRATION MODIFICATIONS ---
+
+# 1. Add the include path for HEaaN headers.
+# This ensures files like nvmf_heaan_main.c and ctrlr_bdev.c can find the *.h files.
+CFLAGS += -I$(SPDK_ROOT_DIR)/include/heaan
+
+# 2. Add the path to the HEaaN library directory to the linker.
+# The '-L' flag tells the linker where to search for the library file.
+LDLIBS += -L$(SPDK_ROOT_DIR)/lib/heaan
+
+# 3. Add the HEaaN library name to the linker flags.
+# The '-l' flag tells the linker to link against 'libHEaaN.a'.
+LDLIBS += -lHEaaN
+
+# !@Gemini@! --- END HEaaN INTEGRATION MODIFICATIONS ---
+
 include $(SPDK_ROOT_DIR)/mk/spdk.app.mk
 
 install: $(APP)

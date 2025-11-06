@@ -55,3 +55,4 @@ endif
 SPDK_MAP_FILE = $(abspath $(CURDIR)/spdk_nvmf.map)
 
 include $(SPDK_ROOT_DIR)/mk/spdk.lib.mk
+LIBS += -lc $(SPDK_ROOT_DIR)/lib/heaan/libHEAAN.a -lntl -lgmp -lm  -lstdc++ -lrt -lpthread

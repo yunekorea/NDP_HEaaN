@@ -1253,12 +1253,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	}
 
 	// Uncomment after integrating HEaaN library
-	/*
+	
 	void* input_0_ciphertext = readCiphertextFromMem(input_0_buffer, (size_t)input_0_size * block_size);
 	void* input_1_ciphertext = readCiphertextFromMem(input_1_buffer, (size_t)input_1_size * block_size);
 	void* target_ciphertext = readCiphertextFromMem(target_buffer, (size_t)target_size & block_size);
-
-	if(ciphertextAdd(hestr.scheme, input_0_ciphertext, input_1_ciphertext, target_ciphertext) != 0) {
+	heaan_ndp_context* hestr = heaan_Get_Context();
+	
+	if(ciphertextAdd(hestr->scheme, input_0_ciphertext, input_1_ciphertext, target_ciphertext) != 0) {
 		SPDK_ERRLOG("Ciphertext Add Error No: %d\n", load_result);
 		free(input_0_buffer);
 		free(input_1_buffer);
@@ -1267,7 +1268,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 	}
-	*/
+	
 
 	spdk_dma_free(input_0_buffer);
 	spdk_dma_free(input_1_buffer);

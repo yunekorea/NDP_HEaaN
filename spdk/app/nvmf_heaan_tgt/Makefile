@@ -5,6 +5,7 @@
 
 SPDK_ROOT_DIR := $(abspath $(CURDIR)/../..)
 include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
+LD = g++
 include $(SPDK_ROOT_DIR)/mk/spdk.modules.mk
 
 APP = nvmf_heaan_tgt
@@ -29,18 +30,22 @@ CFLAGS += -I$(SPDK_ROOT_DIR)/include/heaan
 
 # 2. Add the path to the HEaaN library directory to the linker.
 # The '-L' flag tells the linker where to search for the library file.
-LDLIBS += -L$(SPDK_ROOT_DIR)/lib/heaan
+# LDLIBS += -L$(SPDK_ROOT_DIR)/lib/heaan
+# LDLIBS += $(SPDK_ROOT_DIR)/lib/heaan/libHEAAN.a
+LDLIBS += -lc $(SPDK_ROOT_DIR)/lib/heaan/libHEAAN.a -lntl -lgmp -lm  -lstdc++ -lrt -lpthread
+
 
 # 3. Add the HEaaN library name to the linker flags.
 # The '-l' flag tells the linker to link against 'libHEaaN.a'.
-LDLIBS += -lHEaaN
+#LDLIBS += -lHEAAN
 
 # Includes C++ runtime library
-LDLIBS += -lstdc++
+# LDLIBS += -lstdc++ -lpthread -lc -lrt
 
 # !@Gemini@! --- END HEaaN INTEGRATION MODIFICATIONS ---
 
 include $(SPDK_ROOT_DIR)/mk/spdk.app.mk
+LIBS += -lc $(SPDK_ROOT_DIR)/lib/heaan/libHEAAN.a -lntl -lgmp -lm  -lstdc++ -lrt -lpthread
 
 install: $(APP)
 	$(INSTALL_APP)

@@ -43,6 +43,8 @@ main(int argc, char **argv)
 		exit(rc);
 	}
 
+	heaan_Initialize(300, 30, 10, 8, 1024);
+
 	/* Blocks until the application is exiting */
 	rc = spdk_app_start(&opts, nvmf_tgt_started, NULL);
 	spdk_app_fini();

@@ -3113,6 +3113,7 @@ nvmf_tcp_req_process(struct spdk_nvmf_tcp_transport *ttransport,
 					nvmf_tcp_qpair_set_recv_state(tqpair, NVME_TCP_PDU_RECV_STATE_AWAIT_PDU_PAYLOAD);
 				}
 				break;
+	
 			}
 
 			nvmf_tcp_req_set_state(tcp_req, TCP_REQUEST_STATE_READY_TO_EXECUTE);
@@ -3195,15 +3196,21 @@ nvmf_tcp_req_process(struct spdk_nvmf_tcp_transport *ttransport,
 					assert(tcp_req->fused_pair != NULL);
 					assert(tcp_req->fused_pair->fused_pair == tcp_req);
 					nvmf_tcp_req_set_state(tcp_req->fused_pair, TCP_REQUEST_STATE_EXECUTING);
+					//debugging - delete the following line
+					//fprintf(stdout, "tcq_req_process: SPDK_NVME_CMD_FUSE_SECOND\n");
 					spdk_nvmf_request_exec(&tcp_req->fused_pair->req);
 					tcp_req->fused_pair->fused_pair = NULL;
 					tcp_req->fused_pair = NULL;
 				}
+				//debugging - delete the following line
+				//fprintf(stdout, "tcq_req_process: TCP_REQUEST_STATE_EXECUTING\n");
 				spdk_nvmf_request_exec(&tcp_req->req);
 				if (tcp_req->cmd.fuse == SPDK_NVME_CMD_FUSE_FIRST) {
 					assert(tcp_req->fused_pair != NULL);
 					assert(tcp_req->fused_pair->fused_pair == tcp_req);
 					nvmf_tcp_req_set_state(tcp_req->fused_pair, TCP_REQUEST_STATE_EXECUTING);
+					//debugging - delete the following line
+					//fprintf(stdout, "tcq_req_process: SPDK_NVME_CMD_FUSE_FIRST\n");
 					spdk_nvmf_request_exec(&tcp_req->fused_pair->req);
 					tcp_req->fused_pair->fused_pair = NULL;
 					tcp_req->fused_pair = NULL;

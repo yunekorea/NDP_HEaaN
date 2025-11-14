@@ -8994,7 +8994,8 @@ static int passthru(int argc, char **argv, bool admin,
 		}
 		cfg.cdw13 = (__u32)target_layout->extent_count;
 
-		cfg.data_len = 8192;
+		//cfg.data_len = 8192;
+		cfg.data_len = 4096;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
 		if (!data)
 			return -ENOMEM;

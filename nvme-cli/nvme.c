@@ -8795,6 +8795,45 @@ void dump_hex(const char *label, const void *data, size_t len)
     }
 }
 
+void split_path(const char* full_path, char** path_out, char** filename_out) {
+    // 1. Find the last occurrence of the directory separator '/'
+    const char* last_slash = strrchr(full_path, '/');
+
+    if (last_slash == NULL) {
+        //No separator("filename")
+        *path_out = strdup("./"); 
+        *filename_out = strdup(full_path);
+        
+    } else {
+        //Separator found(path/filename)
+        
+        // Calculate the length of the path component (up to and including the slash)
+        size_t path_len = last_slash - full_path + 1;
+        
+        // Allocate and copy the path component
+        *path_out = (char*)malloc(path_len + 1);
+        if (*path_out != NULL) {
+            // Copy everything up to and including the last '/'
+            memcpy(*path_out, full_path, path_len);
+            // Null terminate the path string
+            (*path_out)[path_len] = '\0';
+        }
+        
+        // Calculate the length of the filename component
+        const char* filename_start = last_slash + 1;
+        size_t filename_len = strlen(filename_start);
+        
+        // Allocate and copy the filename component
+        *filename_out = (char*)malloc(filename_len + 1);
+        if (*filename_out != NULL) {
+            // Copy everything AFTER the last '/'
+            memcpy(*filename_out, filename_start, filename_len);
+            // Null terminate the filename string
+            (*filename_out)[filename_len] = '\0';
+        }
+    }
+}
+
 static int passthru(int argc, char **argv, bool admin,
 		const char *desc, struct command *cmd)
 {
@@ -8954,25 +8993,30 @@ static int passthru(int argc, char **argv, bool admin,
 			fprintf(stderr, "Failed to get input file 0 name.\n");
 			return -EINVAL;
 		}
-		
-		/*
-		char* input_1_name = strtok(NULL, "|");
-		if(!input_1_name) {
-			fprintf(stderr, "Failed to get input file 1 name.\n");
-			return -EINVAL;
-		}
-		if(strtok(NULL, "|") != NULL) {
-			fprintf(stderr, "Too many input file arguments.\n");
-			return -EINVAL;
-		}*/
+		char* input_0_path = NULL;
+		char* input_0_filename = NULL;
+		split_path(input_0_name, &input_0_path, &input_0_filename);
+		fprintf(stdout, "input 0 path: %s\ninput 0 file: %s\n", input_0_path, input_0_filename);
 
 		char* input_1_name = cfg.metadata;
 		cfg.metadata = NULL;
 		cfg.metadata_len = 0;
-		char* target_name = cfg.target_file;
-
-
+		char* input_1_path = NULL;
+		char* input_1_filename = NULL;
+		split_path(input_1_name, &input_1_path, &input_1_filename);
+		fprintf(stdout, "input 1 path: %s\ninput 1 file: %s\n", input_1_path, input_1_filename);
 		
+		char* target_name = cfg.target_file;
+		char* target_path = NULL;
+		char* target_filename = NULL;
+		split_path(target_name, &target_path, &target_filename);
+		fprintf(stdout, "target path: %s\ntarget file: %s\n", target_path, target_filename);
+		
+		size_t full_string_len = strlen(input_0_path) + strlen(input_0_filename) +
+									strlen(input_1_path) + strlen(input_1_filename) +
+									strlen(target_path) + strlen(target_filename) + 5;
+
+		/*	
 		file_layout_t *input_0_layout = get_file_layout(input_0_name);
 		if(!input_0_layout) {
 			fprintf(stderr, "Failed to get file layout\n");
@@ -8993,14 +9037,22 @@ static int passthru(int argc, char **argv, bool admin,
 			return 1;
 		}
 		cfg.cdw13 = (__u32)target_layout->extent_count;
+		*/
 
-		//cfg.data_len = 8192;
 		cfg.data_len = 4096;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
 		if (!data)
 			return -ENOMEM;
 		memset(data, cfg.prefill, cfg.data_len);
-		
+
+		char* chardata = (char*)data;
+		sprintf(chardata, "%s|%s|%s|%s|%s|%s",
+				input_0_path, input_0_filename,
+				input_1_path, input_1_filename,
+				target_path, target_filename);
+
+
+		/*
 		uint64_t* u64data = (uint64_t*)data;
 		uint32_t i = 0;
 		uint32_t bufnum = 0;
@@ -9035,7 +9087,7 @@ static int passthru(int argc, char **argv, bool admin,
 		free_file_layout(input_0_layout);
 		free_file_layout(input_1_layout);
 		free_file_layout(target_layout);
-		
+		*/	
 		goto skip_data_fill;
 	}
 

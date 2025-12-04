@@ -1099,14 +1099,14 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
         //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
     }
 
-	uint32_t buffer_size = req->cdw13;
-    // Add more logging to confirm data is received
+	uint32_t buffer_size = cmd->cdw13;
+	void* data_buf_ptr = NULL;
 	int read_size = (int)buffer_size;
 	size_t iov_len = 0;
 	for(int i = 0; read_size < buffer_size; i++) {
 		read_size += req->iov[i].iov_len;
 		iov_len = req->iov[i].iov_len;	
-		*data_buf_ptr = req->iov[i].iov_base;
+		data_buf_ptr = req->iov[i].iov_base;
 		dump_hex("Received Buffer Content (Target)", data_buf_ptr, iov_len);
 		
 	}

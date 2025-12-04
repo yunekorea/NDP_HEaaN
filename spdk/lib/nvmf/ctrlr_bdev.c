@@ -1082,16 +1082,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	void* buffer_address = NULL;
 
 	//void* data = cmd->dptr.sgl1.address;
-    uint32_t input_0_extents_count = cmd->cdw11; // Number of extents of inputfile_0
-    uint32_t input_1_extents_count = cmd->cdw12; // Number of extents of inputfile_1
-    uint32_t target_extents_count = cmd->cdw13; // Number of extents of targetfile
 
-	fprintf(stdout, "C_HEAAN_ADD : inp0_ext_cnt : %d\n", input_0_extents_count);
-	fprintf(stdout, "C_HEAAN_ADD : inp1_ext_cnt : %d\n", input_1_extents_count);
-	fprintf(stdout, "C_HEAAN_ADD : tgt_ext_cnt : %d\n", target_extents_count);
-
-    //fprintf(stdout, "C_HEAAN_ADD: address : %lld\n", data);
- 	//fprintf(stdout, "C_HEAAN_ADD: ext_cnt : %lld\n", extents_count);
 	
 	fprintf(stdout, "C_HEAAN_ADD : Entered and started.\n");
 	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
@@ -1113,13 +1104,6 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     void *data_buf_ptr = req->iov[0].iov_base;
     size_t first_iov_len = req->iov[0].iov_len;
     
-    // Your original print statements are now safe.
-    fprintf(stdout, "C_HEAAN_ADD: First IOV Buffer Address: %p\n", data_buf_ptr);
-    fprintf(stdout, "C_HEAAN_ADD: First IOV Length: %zu bytes\n", first_iov_len);
-
-	fprintf(stdout, "Opcode: 0x%02x\n", cmd->opc);
-
-
     // Add more logging to confirm data is received
     SPDK_NOTICELOG("First 64 bytes of received data:\n");
 	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 64);

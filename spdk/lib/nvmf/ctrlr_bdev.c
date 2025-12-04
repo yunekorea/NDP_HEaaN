@@ -1158,9 +1158,11 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 	}
-	writeCiphertextToPath(target_ciphertext, cipherTextAdd_Path);
-
 	fprintf(stdout, "Addition DONE\n");
+	fprintf(stdout, "Ciphertext Storing Started.\n");
+	writeCiphertextToPath(target_ciphertext, cipherTextAdd_Path);
+	fprintf(stdout, "Storage DONE\n");
+
 	fprintf(stdout, "Freeing Ciphertext buffers\n");
 
 	

@@ -1100,9 +1100,14 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     }
 
 	uint32_t buffer_size = cmd->cdw13;
+	fprintf(stdout, "Buffer Size: %d\n", buffer_size);
 	void* data_buf_ptr = NULL;
-	int read_size = (int)buffer_size;
+	int read_size = 0;
 	size_t iov_len = 0;
+	iov_len = req->iov[0].iov_len;	
+	data_buf_ptr = req->iov[0].iov_base;
+	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
+	/*
 	for(int i = 0; read_size < buffer_size; i++) {
 		read_size += req->iov[i].iov_len;
 		iov_len = req->iov[i].iov_len;	
@@ -1110,6 +1115,58 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		dump_hex("Received Buffer Content (Target)", data_buf_ptr, iov_len);
 		
 	}
+	*/
+	const char* separator = "|";
+	size_t pathlen = 0;
+	
+	char* cipherText0_Dir = strtok(data_buf_ptr, separator);
+	char* cipherText0_FileName = strtok(NULL, separator);
+	pathlen = strlen(cipherText0_Dir) + strlen(cipherText0_FileName) + 1;
+	char* cipherText0_Path = (char*)malloc(pathlen);
+	strcpy(cipherText0_Path, cipherText0_Dir);
+	strcat(cipherText0_Path, cipherText0_FileName);
+	
+	char* cipherText1_Dir = strtok(NULL, separator);
+	char* cipherText1_FileName = strtok(NULL, separator);
+	pathlen = strlen(cipherText1_Dir) + strlen(cipherText1_FileName) + 1;
+	char* cipherText1_Path = (char*)malloc(pathlen);
+	strcpy(cipherText1_Path, cipherText1_Dir);
+	strcat(cipherText1_Path, cipherText1_FileName);
+	
+	char* cipherTextAdd_Dir = strtok(NULL, separator);
+	char* cipherTextAdd_FileName = strtok(NULL, separator);
+	pathlen = strlen(cipherTextAdd_Dir) + strlen(cipherTextAdd_FileName) + 1;
+	char* cipherTextAdd_Path = (char*)malloc(pathlen);
+	strcpy(cipherTextAdd_Path, cipherTextAdd_Dir);
+	strcat(cipherTextAdd_Path, cipherTextAdd_FileName);
+
+	fprintf(stdout, "CT0: %s\nCT1: %s\nCTA: %s\n", cipherText0_Path, cipherText1_Path, cipherTextAdd_Path);
+	
+	void* input_0_ciphertext = readCiphertextFromPath(cipherText0_Path);
+	void* input_1_ciphertext = readCiphertextFromPath(cipherText1_Path);
+
+	void* target_ciphertext = create_Ciphertext();
+	heaan_ndp_context* hestr = heaan_Get_Context();
+	
+	fprintf(stdout, "Ciphertext Addition Started.\n");
+	if(ciphertextAdd(hestr->scheme, target_ciphertext, input_0_ciphertext, input_1_ciphertext) != 0) {
+		SPDK_ERRLOG("Ciphertext Add Error No: %d\n", 1212);
+		free(cipherText0_Path);
+		free(cipherText1_Path);
+		free(cipherTextAdd_Path);
+		response->status.sct = SPDK_NVME_SCT_GENERIC;
+		response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+	}
+	writeCiphertextToPath(target_ciphertext, cipherTextAdd_Path);
+
+	fprintf(stdout, "Addition DONE\n");
+	fprintf(stdout, "Freeing Ciphertext buffers\n");
+
+	
+	free(cipherText0_Path);
+	free(cipherText1_Path);
+	free(cipherTextAdd_Path);
 	/*
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t buf_num = 0;

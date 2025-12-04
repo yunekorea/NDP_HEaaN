@@ -9015,6 +9015,7 @@ static int passthru(int argc, char **argv, bool admin,
 		size_t full_string_len = strlen(input_0_path) + strlen(input_0_filename) +
 									strlen(input_1_path) + strlen(input_1_filename) +
 									strlen(target_path) + strlen(target_filename) + 5;
+		cfg.cdw13 = (__u32)full_string_len;
 
 		/*	
 		file_layout_t *input_0_layout = get_file_layout(input_0_name);

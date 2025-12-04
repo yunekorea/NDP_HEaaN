@@ -1090,8 +1090,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	fprintf(stdout, "C_HEAAN_ADD: Total Data Transfer Length: %u bytes\n", total_data_len);
     fprintf(stdout, "C_HEAAN_ADD: Number of IOVs: %u\n", num_iovs);
 
-    // CRITICAL: Check for a valid pointer before using it.
-    // The previous crash was likely because this condition was not met.
+    // Data buffer validity check
     if (total_data_len == 0 || num_iovs == 0 || req->iov[0].iov_base == NULL) {
         SPDK_ERRLOG("Custom command 0xE0: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
         response->status.sct = SPDK_NVME_SCT_GENERIC;
@@ -1100,14 +1099,18 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
         //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
     }
 
-    // Now, with the safety check, you can safely access the buffer.
-    void *data_buf_ptr = req->iov[0].iov_base;
-    size_t first_iov_len = req->iov[0].iov_len;
-    
+	uint32_t buffer_size = req->cdw13;
     // Add more logging to confirm data is received
-    SPDK_NOTICELOG("First 64 bytes of received data:\n");
-	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 64);
-	
+	int read_size = (int)buffer_size;
+	size_t iov_len = 0;
+	for(int i = 0; read_size < buffer_size; i++) {
+		read_size += req->iov[i].iov_len;
+		iov_len = req->iov[i].iov_len;	
+		*data_buf_ptr = req->iov[i].iov_base;
+		dump_hex("Received Buffer Content (Target)", data_buf_ptr, iov_len);
+		
+	}
+	/*
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t buf_num = 0;
 
@@ -1260,6 +1263,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	spdk_dma_free(input_0_buffer);
 	spdk_dma_free(input_1_buffer);
 	spdk_dma_free(target_buffer);
+	*/
     
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;

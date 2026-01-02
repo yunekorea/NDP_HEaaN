@@ -8986,9 +8986,11 @@ static int passthru(int argc, char **argv, bool admin,
 	
 	if (cfg.opcode == 0xe0) { //HEaaN Ciphertext Add custom OPC
 		cfg.write = true;
-		//char* input_names = cfg.input_file;
-		//char* input_0_name = strtok(input_names, "|");
 		char* input_0_name = cfg.input_file;
+		char* input_1_name = cfg.metadata;
+		char* target_name = cfg.target_file;
+		
+		/*
 		if(!input_0_name) {
 			fprintf(stderr, "Failed to get input file 0 name.\n");
 			return -EINVAL;
@@ -8998,7 +9000,6 @@ static int passthru(int argc, char **argv, bool admin,
 		split_path(input_0_name, &input_0_path, &input_0_filename);
 		fprintf(stdout, "input 0 path: %s\ninput 0 file: %s\n", input_0_path, input_0_filename);
 
-		char* input_1_name = cfg.metadata;
 		cfg.metadata = NULL;
 		cfg.metadata_len = 0;
 		char* input_1_path = NULL;
@@ -9006,7 +9007,6 @@ static int passthru(int argc, char **argv, bool admin,
 		split_path(input_1_name, &input_1_path, &input_1_filename);
 		fprintf(stdout, "input 1 path: %s\ninput 1 file: %s\n", input_1_path, input_1_filename);
 		
-		char* target_name = cfg.target_file;
 		char* target_path = NULL;
 		char* target_filename = NULL;
 		split_path(target_name, &target_path, &target_filename);
@@ -9016,14 +9016,17 @@ static int passthru(int argc, char **argv, bool admin,
 									strlen(input_1_path) + strlen(input_1_filename) +
 									strlen(target_path) + strlen(target_filename) + 5;
 		cfg.cdw13 = (__u32)full_string_len;
-
-		/*	
+		*/
+		
 		file_layout_t *input_0_layout = get_file_layout(input_0_name);
 		if(!input_0_layout) {
 			fprintf(stderr, "Failed to get file layout\n");
 			return 1;
 		}
 		cfg.cdw11 = (__u32)input_0_layout->extent_count;
+		uint64_t cip_size = input_0_layout->total_length;
+		
+		fprintf(stdout, "CipSize: %ld\n", cip_size);
 
 		file_layout_t *input_1_layout = get_file_layout(input_1_name);
 		if(!input_1_layout) {
@@ -9032,14 +9035,20 @@ static int passthru(int argc, char **argv, bool admin,
 		}
 		cfg.cdw12 = (__u32)input_1_layout->extent_count;
 
+		int target_fd = open(target_name, O_RDWR | O_CREAT, 0644);
+
+		if (fallocate(target_fd, 0, 0, cip_size) != 0) {
+			perror("fallocate failed");
+			return 1;
+		}
 		file_layout_t *target_layout = get_file_layout(target_name);
 		if(!target_layout) {
 			fprintf(stderr, "Failed to get file layout\n");
 			return 1;
 		}
 		cfg.cdw13 = (__u32)target_layout->extent_count;
-		*/
-
+		
+		/*
 		cfg.data_len = 4096;
 		data = nvme_alloc_huge(cfg.data_len, &mh);
 		if (!data)
@@ -9051,9 +9060,8 @@ static int passthru(int argc, char **argv, bool admin,
 				input_0_path, input_0_filename,
 				input_1_path, input_1_filename,
 				target_path, target_filename);
+		*/
 
-
-		/*
 		uint64_t* u64data = (uint64_t*)data;
 		uint32_t i = 0;
 		uint32_t bufnum = 0;
@@ -9062,7 +9070,7 @@ static int passthru(int argc, char **argv, bool admin,
 			extent_info_t *ext = &input_0_layout->extents[i];
 			u64data[2*bufnum] = (uint64_t)ext->lba_start;
 			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("INPUT0 - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			printf("INPUT0 - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
 			bufnum++;
 		}
 		i = 0;
@@ -9071,7 +9079,7 @@ static int passthru(int argc, char **argv, bool admin,
 			extent_info_t *ext = &input_1_layout->extents[i];
 			u64data[2*bufnum] = (uint64_t)ext->lba_start;
 			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("INPUT1 - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			printf("INPUT1 - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
 			bufnum++;
 		}
 		i = 0;
@@ -9080,7 +9088,7 @@ static int passthru(int argc, char **argv, bool admin,
 			extent_info_t *ext = &target_layout->extents[i];
 			u64data[2*bufnum] = (uint64_t)ext->lba_start;
 			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("TARGET - lba : %lld\t count : %lld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
+			printf("TARGET - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
 			bufnum++;
 		}
 		dump_hex("Buffer Content (Host)", data, 64);
@@ -9088,7 +9096,6 @@ static int passthru(int argc, char **argv, bool admin,
 		free_file_layout(input_0_layout);
 		free_file_layout(input_1_layout);
 		free_file_layout(target_layout);
-		*/	
 		goto skip_data_fill;
 	}
 

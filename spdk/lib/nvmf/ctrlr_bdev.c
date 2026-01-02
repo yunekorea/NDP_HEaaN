@@ -1081,6 +1081,9 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	
 	void* buffer_address = NULL;
 
+	uint32_t input_0_extents_count = cmd->cdw11;
+	uint32_t input_1_extents_count = cmd->cdw12;
+	uint32_t target_extents_count = cmd->cdw13;
 	//void* data = cmd->dptr.sgl1.address;
 
 	
@@ -1098,7 +1101,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     	return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
         //return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
     }
+	
+	void* data_buf_ptr = NULL;
+	data_buf_ptr = req->iov[0].iov_base;
+	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
 
+	/*
 	uint32_t buffer_size = cmd->cdw13;
 	fprintf(stdout, "Buffer Size: %d\n", buffer_size);
 	void* data_buf_ptr = NULL;
@@ -1107,7 +1115,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	iov_len = req->iov[0].iov_len;	
 	data_buf_ptr = req->iov[0].iov_base;
 	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
-	/*
+	
 	for(int i = 0; read_size < buffer_size; i++) {
 		read_size += req->iov[i].iov_len;
 		iov_len = req->iov[i].iov_len;	
@@ -1116,6 +1124,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		
 	}
 	*/
+
+	/*
 	const char* separator = "|";
 	size_t pathlen = 0;
 	
@@ -1169,9 +1179,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	free(cipherText0_Path);
 	free(cipherText1_Path);
 	free(cipherTextAdd_Path);
-	/*
+	*/
+
+	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t buf_num = 0;
+
 
 	uint64_t input_0_ext[input_0_extents_count * 2];
 	uint64_t input_1_ext[input_1_extents_count * 2];
@@ -1300,10 +1313,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
 	// Uncomment after integrating HEaaN library
 	
+	heaan_ndp_context* hestr = heaan_Get_Context();
 	void* input_0_ciphertext = readCiphertextFromMem(input_0_buffer, (size_t)input_0_size * block_size);
 	void* input_1_ciphertext = readCiphertextFromMem(input_1_buffer, (size_t)input_1_size * block_size);
-	void* target_ciphertext = readCiphertextFromMem(target_buffer, (size_t)target_size & block_size);
-	heaan_ndp_context* hestr = heaan_Get_Context();
+	void* target_ciphertext = create_Ciphertext();
 
 	fprintf(stdout, "Ciphertext Addition Started.\n");
 	if(ciphertextAdd(hestr->scheme, input_0_ciphertext, input_1_ciphertext, target_ciphertext) != 0) {
@@ -1322,7 +1335,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	spdk_dma_free(input_0_buffer);
 	spdk_dma_free(input_1_buffer);
 	spdk_dma_free(target_buffer);
-	*/
+	
     
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;

@@ -1329,6 +1329,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 	}
 
+	long cipn = getCiphertextN(target_ciphertext);
+	fprintf(stdout, "CipAdd - n: %d\n", cipn);
+	long ciplogp = getCiphertextLogp(target_ciphertext);
+	fprintf(stdout, "CipAdd - logp: %d\n", ciplogp);
+	long ciplogq = getCiphertextLogq(target_ciphertext);
+	fprintf(stdout, "CipAdd - logq: %d\n", ciplogq);
+
 	fprintf(stdout, "Addition DONE\n");
 	fprintf(stdout, "Freeing Ciphertext buffers\n");
 

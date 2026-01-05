@@ -1328,12 +1328,28 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 	}
+	
+	long cipn, ciplogp, ciplogq;
 
-	long cipn = getCiphertextN(target_ciphertext);
+	cipn = getCiphertextN(input_0_ciphertext);
+	fprintf(stdout, "Cip0 - n: %d\n", cipn);
+	ciplogp = getCiphertextLogp(input_0_ciphertext);
+	fprintf(stdout, "Cip0 - logp: %d\n", ciplogp);
+	ciplogq = getCiphertextLogq(input_0_ciphertext);
+	fprintf(stdout, "Cip0 - logq: %d\n", ciplogq);
+	
+	cipn = getCiphertextN(input_1_ciphertext);
+	fprintf(stdout, "Cip1 - n: %d\n", cipn);
+	ciplogp = getCiphertextLogp(input_1_ciphertext);
+	fprintf(stdout, "Cip1 - logp: %d\n", ciplogp);
+	ciplogq = getCiphertextLogq(input_1_ciphertext);
+	fprintf(stdout, "Cip1 - logq: %d\n", ciplogq);
+
+	cipn = getCiphertextN(target_ciphertext);
 	fprintf(stdout, "CipAdd - n: %d\n", cipn);
-	long ciplogp = getCiphertextLogp(target_ciphertext);
+	ciplogp = getCiphertextLogp(target_ciphertext);
 	fprintf(stdout, "CipAdd - logp: %d\n", ciplogp);
-	long ciplogq = getCiphertextLogq(target_ciphertext);
+	ciplogq = getCiphertextLogq(target_ciphertext);
 	fprintf(stdout, "CipAdd - logq: %d\n", ciplogq);
 
 	fprintf(stdout, "Addition DONE\n");

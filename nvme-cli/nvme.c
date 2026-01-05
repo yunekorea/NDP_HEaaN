@@ -9082,7 +9082,7 @@ static int passthru(int argc, char **argv, bool admin,
 			extent_info_t *ext = &input_1_layout->extents[i];
 			u64data[bufnum++] = (uint64_t)ext->lba_start;
 			u64data[bufnum++] = (uint64_t)ext->lba_count;
-			printf("INPUT1 - lba : %ld\t count : %ld\n", u64data[bufnum-2], u64data[2*bufnum-1]);
+			printf("INPUT1 - lba : %ld\t count : %ld\n", u64data[bufnum-2], u64data[bufnum-1]);
 		}
 		i = 0;
 		u64data[bufnum++] = target_layout->start_offset;

@@ -1079,7 +1079,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	uint64_t bdev_num_blocks = spdk_bdev_get_num_blocks(bdev);
 	uint32_t block_size = spdk_bdev_get_block_size(bdev);
 	
-	void* buffer_address = NULL;
+	char* buffer_address = NULL;
 
 	uint32_t input_0_extents_count = cmd->cdw11;
 	uint32_t input_1_extents_count = cmd->cdw12;
@@ -1251,12 +1251,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		target_size += u64data[bufnum++]; 
 	}
 	
-	char* input_0_buffer = spdk_zmalloc(input_0_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-	//void* input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size, 0, NULL);
-	char* input_1_buffer = spdk_zmalloc(input_1_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-	//void* input_1_buffer = spdk_dma_zmalloc(input_1_size * block_size, 0, NULL);
-	char* target_buffer = spdk_zmalloc(target_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
-	//void* target_buffer = spdk_dma_zmalloc(target_size * block_size, 0, NULL);
+	//char* input_0_buffer = spdk_zmalloc(input_0_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+	char* input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size, 0, NULL);
+	//char* input_1_buffer = spdk_zmalloc(input_1_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+	char* input_1_buffer = spdk_dma_zmalloc(input_1_size * block_size, 0, NULL);
+	//char* target_buffer = spdk_zmalloc(target_size * block_size, 0x1000, NULL, SPDK_ENV_SOCKET_ID_ANY, SPDK_MALLOC_DMA);
+	char* target_buffer = spdk_dma_zmalloc(target_size * block_size, 0, NULL);
 
 	int load_result = 0;
 
@@ -1268,12 +1268,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		buffer_address += input_0_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
 			SPDK_ERRLOG("INPUT0 - Buffer Load Error No: %d\n", load_result);
-			spdk_free(input_0_buffer);
-			spdk_free(input_1_buffer);
-			spdk_free(target_buffer);
-			//spdk_dma_free(input_0_buffer);
-			//spdk_dma_free(input_1_buffer);
-			//spdk_dma_free(target_buffer);
+			//spdk_free(input_0_buffer);
+			//spdk_free(input_1_buffer);
+			//spdk_free(target_buffer);
+			spdk_dma_free(input_0_buffer);
+			spdk_dma_free(input_1_buffer);
+			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
@@ -1292,12 +1292,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		buffer_address += input_1_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
 			SPDK_ERRLOG("INPUT1 - Buffer Load Error No: %d\n", load_result);
-			spdk_free(input_0_buffer);
-			spdk_free(input_1_buffer);
-			spdk_free(target_buffer);
-			//spdk_dma_free(input_0_buffer);
-			//spdk_dma_free(input_1_buffer);
-			//spdk_dma_free(target_buffer);
+			//spdk_free(input_0_buffer);
+			//spdk_free(input_1_buffer);
+			//spdk_free(target_buffer);
+			spdk_dma_free(input_0_buffer);
+			spdk_dma_free(input_1_buffer);
+			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
@@ -1316,12 +1316,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		buffer_address += target_ext[2 * iter + 1] * block_size;
 		if(load_result != 0) {
 			SPDK_ERRLOG("TARGET - Buffer Load Error No: %d\n", load_result);
-			spdk_free(input_0_buffer);
-			spdk_free(input_1_buffer);
-			spdk_free(target_buffer);
-			//spdk_dma_free(input_0_buffer);
-			//spdk_dma_free(input_1_buffer);
-			//spdk_dma_free(target_buffer);
+			//spdk_free(input_0_buffer);
+			//spdk_free(input_1_buffer);
+			//spdk_free(target_buffer);
+			spdk_dma_free(input_0_buffer);
+			spdk_dma_free(input_1_buffer);
+			spdk_dma_free(target_buffer);
 			response->status.sct = SPDK_NVME_SCT_GENERIC;
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;

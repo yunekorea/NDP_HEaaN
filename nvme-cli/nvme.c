@@ -8703,6 +8703,7 @@ typedef struct {
 typedef struct {
     char *filename;           // 파일 이름
     int extent_count;        // extent 개수
+	uint64_t start_offset; 	 // The offset of the start of a file within the first block
     uint64_t total_length;   // 전체 파일 크기
     extent_info_t *extents;  // extent 배열
 } file_layout_t;
@@ -8745,6 +8746,7 @@ file_layout_t* get_file_layout(const char *filename) {
     }
 
     // extent 정보 복사
+	layout->start_offset = fiemap->fm_start;
     layout->extent_count = fiemap->fm_mapped_extents;
     layout->total_length = 0;
 
@@ -9066,30 +9068,30 @@ static int passthru(int argc, char **argv, bool admin,
 		uint32_t i = 0;
 		uint32_t bufnum = 0;
 		printf("INPUT0 name: %s\n", input_0_name);
+		u64data[bufnum++] = input_0_layout->start_offset;
 		for(; i < input_0_layout->extent_count; i++) {
 			extent_info_t *ext = &input_0_layout->extents[i];
-			u64data[2*bufnum] = (uint64_t)ext->lba_start;
-			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("INPUT0 - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
-			bufnum++;
+			u64data[bufnum++] = (uint64_t)ext->lba_start;
+			u64data[bufnum++] = (uint64_t)ext->lba_count;
+			printf("INPUT0 - lba : %ld\t count : %ld\n", u64data[bufnum-2], u64data[bufnum-1]);
 		}
 		i = 0;
+		u64data[bufnum++] = input_1_layout->start_offset;
 		printf("INPUT1 name: %s\n", input_1_name);
 		for(; i < input_1_layout->extent_count; i++) {
 			extent_info_t *ext = &input_1_layout->extents[i];
-			u64data[2*bufnum] = (uint64_t)ext->lba_start;
-			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("INPUT1 - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
-			bufnum++;
+			u64data[bufnum++] = (uint64_t)ext->lba_start;
+			u64data[bufnum++] = (uint64_t)ext->lba_count;
+			printf("INPUT1 - lba : %ld\t count : %ld\n", u64data[bufnum-2], u64data[2*bufnum-1]);
 		}
 		i = 0;
+		u64data[bufnum++] = target_layout->start_offset;
 		printf("TARGET name: %s\n", target_name);
 		for(; i < target_layout->extent_count; i++) {
 			extent_info_t *ext = &target_layout->extents[i];
-			u64data[2*bufnum] = (uint64_t)ext->lba_start;
-			u64data[2*bufnum+1] = (uint64_t)ext->lba_count;
-			printf("TARGET - lba : %ld\t count : %ld\n", u64data[2*bufnum], u64data[2*bufnum+1]);
-			bufnum++;
+			u64data[bufnum++] = (uint64_t)ext->lba_start;
+			u64data[bufnum++] = (uint64_t)ext->lba_count;
+			printf("TARGET - lba : %ld\t count : %ld\n", u64data[bufnum-2], u64data[bufnum-1]);
 		}
 		dump_hex("Buffer Content (Host)", data, 64);
 

@@ -1183,11 +1183,13 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
 	
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
-	uint32_t buf_num = 0;
+	uint32_t bufnum = 0;
 
-
+	uint64_t input_0_start_offset = 0;
 	uint64_t input_0_ext[input_0_extents_count * 2];
+	uint64_t input_1_start_offset = 0;
 	uint64_t input_1_ext[input_1_extents_count * 2];
+	uint64_t target_start_offset = 0;
 	uint64_t target_ext[target_extents_count * 2];
 
 	uint64_t input_0_size = 0;
@@ -1195,55 +1197,58 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	uint64_t target_size = 0;
 
 	uint32_t iter = 0;
+	fprintf(stdout, "IN 0 Offset: %lld\n", u64data[bufnum]);
+	input_0_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < input_0_extents_count; iter++) {
-    	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[2*buf_num]);
-    	fprintf(stdout, "IN 0 Len: %lld\n", u64data[2*buf_num+1]);
+    	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[bufnum]);
+    	fprintf(stdout, "IN 0 Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
     		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
-		input_0_ext[2*iter] = u64data[2*buf_num];
-		input_0_ext[2*iter + 1] = u64data[2*buf_num + 1];
-		input_0_size += u64data[2*buf_num + 1];
-		buf_num++;
+		input_0_ext[2*iter] = u64data[bufnum++];
+		input_0_ext[2*iter + 1] = u64data[bufnum];
+		input_0_size += u64data[bufnum++];
 	}
 	
+	fprintf(stdout, "IN 1 Offset: %lld\n", u64data[bufnum]);
+	input_1_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < input_1_extents_count; iter++) {
-    	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[2*buf_num]);
-    	fprintf(stdout, "IN 1 Len: %lld\n", u64data[2*buf_num+1]);
+    	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[bufnum]);
+    	fprintf(stdout, "IN 1 Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
     		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
-		input_1_ext[2*iter] = u64data[2*buf_num];
-		input_1_ext[2*iter + 1] = u64data[2*buf_num + 1];
-		input_1_size += u64data[2*buf_num + 1]; 
-		buf_num++;
+		input_1_ext[2*iter] = u64data[bufnum++];
+		input_1_ext[2*iter + 1] = u64data[bufnum];
+		input_1_size += u64data[bufnum++]; 
 	}
 	
+	fprintf(stdout, "TGT Offset: %lld\n", u64data[bufnum]);
+	target_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < target_extents_count; iter++) {
-    	fprintf(stdout, "TGT LBA: %lld\n", u64data[2*buf_num]);
-    	fprintf(stdout, "TGT Len: %lld\n", u64data[2*buf_num+1]);
+    	fprintf(stdout, "TGT LBA: %lld\n", u64data[bufnum]);
+    	fprintf(stdout, "TGT Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[2*buf_num], u64data[2*buf_num +1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
     		SPDK_ERRLOG("end of media\n");
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_LBA_OUT_OF_RANGE;
     		return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
     		//return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
-		target_ext[2*iter] = u64data[2*buf_num];
-		target_ext[2*iter + 1] = u64data[2*buf_num + 1];
-		target_size += u64data[2*buf_num + 1]; 
-		buf_num++;
+		target_ext[2*iter] = u64data[bufnum++];
+		target_ext[2*iter + 1] = u64data[bufnum];
+		target_size += u64data[bufnum++]; 
 	}
 
 	void* input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size, 0, NULL);

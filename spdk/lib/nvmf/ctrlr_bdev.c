@@ -1339,12 +1339,15 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	fprintf(stdout, "Ciphertext Addition Started.\n");
 	if(ciphertextAdd(hestr->scheme, input_0_ciphertext, input_1_ciphertext, target_ciphertext) != 0) {
 		SPDK_ERRLOG("Ciphertext Add Error No: %d\n", load_result);
-		spdk_free(input_0_buffer);
-		spdk_free(input_1_buffer);
-		spdk_free(target_buffer);
-		//spdk_dma_free(input_0_buffer);
-		//spdk_dma_free(input_1_buffer);
-		//spdk_dma_free(target_buffer);
+		//spdk_free(input_0_buffer);
+		//spdk_free(input_1_buffer);
+		//spdk_free(target_buffer);
+		spdk_dma_free(input_0_buffer);
+		spdk_dma_free(input_1_buffer);
+		spdk_dma_free(target_buffer);
+		free_Ciphertext(input_0_ciphertext);
+		free_Ciphertext(input_1_ciphertext);
+		free_Ciphertext(target_ciphertext);
 		response->status.sct = SPDK_NVME_SCT_GENERIC;
 		response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 		return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
@@ -1376,12 +1379,15 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	fprintf(stdout, "Addition DONE\n");
 	fprintf(stdout, "Freeing Ciphertext buffers\n");
 	
-	spdk_free(input_0_buffer);
-	spdk_free(input_1_buffer);
-	spdk_free(target_buffer);
-	//spdk_dma_free(input_0_buffer);
-	//spdk_dma_free(input_1_buffer);
-	//spdk_dma_free(target_buffer);
+	//spdk_free(input_0_buffer);
+	//spdk_free(input_1_buffer);
+	//spdk_free(target_buffer);
+	spdk_dma_free(input_0_buffer);
+	spdk_dma_free(input_1_buffer);
+	spdk_dma_free(target_buffer);
+	free_Ciphertext(input_0_ciphertext);
+	free_Ciphertext(input_1_ciphertext);
+	free_Ciphertext(target_ciphertext);
     
 	response->status.sct = SPDK_NVME_SCT_GENERIC;
     response->status.sc = SPDK_NVME_SC_SUCCESS;

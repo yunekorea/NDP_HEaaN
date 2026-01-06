@@ -8755,8 +8755,10 @@ file_layout_t* get_file_layout(const char *filename) {
         layout->extents[i].logical_offset = fiemap->fm_extents[i].fe_logical;
         layout->extents[i].physical_offset = fiemap->fm_extents[i].fe_physical;
         layout->extents[i].length = fiemap->fm_extents[i].fe_length;
-        layout->extents[i].lba_start = fiemap->fm_extents[i].fe_physical / DEVICE_BLOCK_SIZE;
-        layout->extents[i].lba_count = fiemap->fm_extents[i].fe_length / DEVICE_BLOCK_SIZE;
+        //layout->extents[i].lba_start = fiemap->fm_extents[i].fe_physical / DEVICE_BLOCK_SIZE;
+        //layout->extents[i].lba_count = fiemap->fm_extents[i].fe_length / DEVICE_BLOCK_SIZE;
+        layout->extents[i].lba_start = fiemap->fm_extents[i].fe_physical;
+        layout->extents[i].lba_count = fiemap->fm_extents[i].fe_length;
         layout->total_length += fiemap->fm_extents[i].fe_length;
     }
 

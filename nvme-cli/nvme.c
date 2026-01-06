@@ -8735,6 +8735,7 @@ file_layout_t* get_file_layout(const char *filename) {
         free(fiemap);
         return NULL;
     }
+	fsync(fd);
 
     if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
         perror("ioctl failed");

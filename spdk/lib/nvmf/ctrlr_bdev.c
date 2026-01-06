@@ -1116,7 +1116,7 @@ nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void
 		else {
 			dump_hex("INPUT0 - Loaded Buffer Content", ctx->input_0_buffer, 4096);
 			dump_hex("INPUT1 - Loaded Buffer Content", ctx->input_1_buffer, 4096);
-			dump_hex("TARGET - Loaded Buffer Content", ctx->target_buffer, 4096);
+			//dump_hex("TARGET - Loaded Buffer Content", ctx->target_buffer, 4096);
 
 			heaan_ndp_context* hestr = heaan_Get_Context();
 			void* input_0_ciphertext = readCiphertextFromMem(ctx->input_0_buffer, ctx->input_0_total_size, ctx->input_0_start_offset);
@@ -1124,7 +1124,7 @@ nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void
 			void* target_ciphertext = create_Ciphertext();
 
 			fprintf(stdout, "Ciphertext Addition Started.\n");
-			if(ciphertextAdd(hestr->scheme, input_0_ciphertext, input_1_ciphertext, target_ciphertext) != 0) {
+			if(ciphertextAdd(hestr->scheme, target_ciphertext, input_0_ciphertext, input_1_ciphertext) != 0) {
 				SPDK_ERRLOG("Ciphertext Add Error\n");
 				response->status.sct = SPDK_NVME_SCT_GENERIC;
 				response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
@@ -1252,7 +1252,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[bufnum]);
     	fprintf(stdout, "IN 0 Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		//if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum] / block_size, u64data[bufnum+1] / block_size))) {
     		SPDK_ERRLOG("end of media\n");
 			spdk_free(ctx);
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
@@ -1270,7 +1271,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[bufnum]);
     	fprintf(stdout, "IN 1 Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		//if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum] / block_size, u64data[bufnum+1] / block_size))) {
     		SPDK_ERRLOG("end of media\n");
 			spdk_free(ctx);
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
@@ -1288,7 +1290,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     	fprintf(stdout, "TGT LBA: %lld\n", u64data[bufnum]);
     	fprintf(stdout, "TGT Len: %lld\n", u64data[bufnum+1]);
 		//Validity check; Parameters: bdev_num_blocks, start_lba, num_blocks)
-		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		//if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum], u64data[bufnum+1]))) {
+		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, u64data[bufnum] / block_size, u64data[bufnum+1] / block_size))) {
     		SPDK_ERRLOG("end of media\n");
 			spdk_free(ctx);
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
@@ -1299,12 +1302,15 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		target_ext[2*iter + 1] = u64data[bufnum];
 		target_size += u64data[bufnum++]; 
 	}
-	ctx->input_0_total_size = input_0_size * block_size;
-	ctx->input_1_total_size = input_1_size * block_size;
+	//ctx->input_0_total_size = input_0_size * block_size;
+	//ctx->input_1_total_size = input_1_size * block_size;
+	ctx->input_0_total_size = input_0_size;
+	ctx->input_1_total_size = input_1_size;
 	
-	ctx->input_0_buffer = spdk_dma_zmalloc(input_0_size * block_size, 0, NULL);
-	ctx->input_1_buffer = spdk_dma_zmalloc(input_1_size * block_size, 0, NULL);
-	ctx->target_buffer = spdk_dma_zmalloc(target_size * block_size, 0, NULL);
+	ctx->input_0_buffer = spdk_dma_zmalloc(ctx->input_0_total_size, 0, NULL);
+	ctx->input_1_buffer = spdk_dma_zmalloc(ctx->input_1_total_size, 0, NULL);
+	//ctx->target_buffer = spdk_dma_zmalloc(target_size * block_size, 0, NULL);
+	ctx->target_buffer = spdk_dma_zmalloc(target_size, 0, NULL);
 	
 
 	int load_result = 0;
@@ -1313,8 +1319,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	fprintf(stdout, "INPUT0 - Buffer load start\n");
 	for(iter = 0; iter < input_0_extents_count; iter++) {
 		fprintf(stdout, "INP0 - iter : %d\n\tLBA: %d\n\tBLKNUM: %d\n", iter, input_0_ext[2 * iter], input_0_ext[2 * iter + 1]);
-		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_0_ext[2 * iter] , input_0_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
-		buffer_address += input_0_ext[2 * iter + 1] * block_size;
+		//load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_0_ext[2 * iter] , input_0_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		load_result = spdk_bdev_read(desc, ch, buffer_address, input_0_ext[2 * iter] , input_0_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		//buffer_address += input_0_ext[2 * iter + 1] * block_size;
+		buffer_address += input_0_ext[2 * iter + 1];
 		if(load_result != 0) {
 			SPDK_ERRLOG("INPUT0 - Buffer Load Error No: %d\n", load_result);
 			spdk_dma_free(ctx->input_0_buffer);
@@ -1333,8 +1341,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	load_result = 0;
 	for(iter = 0; iter < input_1_extents_count; iter++) {
 		fprintf(stdout, "INP1 - iter : %d\n\tLBA: %d\n\tBLKNUM: %d\n", iter, input_1_ext[2 * iter], input_1_ext[2 * iter + 1]);
-		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_1_ext[2 * iter], input_1_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
-		buffer_address += input_1_ext[2 * iter + 1] * block_size;
+		//load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, input_1_ext[2 * iter], input_1_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		load_result = spdk_bdev_read(desc, ch, buffer_address, input_1_ext[2 * iter], input_1_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		//buffer_address += input_1_ext[2 * iter + 1] * block_size;
+		buffer_address += input_1_ext[2 * iter + 1];
 		if(load_result != 0) {
 			SPDK_ERRLOG("INPUT1 - Buffer Load Error No: %d\n", load_result);
 			spdk_dma_free(ctx->input_0_buffer);
@@ -1353,8 +1363,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	load_result = 0;
 	for(iter = 0; iter < target_extents_count; iter++) {
 		fprintf(stdout, "TGT - iter : %d\n\tLBA: %d\n\tBLKNUM: %d\n", iter, target_ext[2 * iter], target_ext[2 * iter + 1]);
-		load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, target_ext[2 * iter], target_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
-		buffer_address += target_ext[2 * iter + 1] * block_size;
+		//load_result = spdk_bdev_read_blocks(desc, ch, buffer_address, target_ext[2 * iter], target_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		load_result = spdk_bdev_read(desc, ch, buffer_address, target_ext[2 * iter], target_ext[2 * iter + 1], nvmf_heaan_buffer_fill_complete, ctx);
+		//buffer_address += target_ext[2 * iter + 1] * block_size;
+		buffer_address += target_ext[2 * iter + 1];
 		if(load_result != 0) {
 			SPDK_ERRLOG("TARGET - Buffer Load Error No: %d\n", load_result);
 			spdk_dma_free(ctx->input_0_buffer);

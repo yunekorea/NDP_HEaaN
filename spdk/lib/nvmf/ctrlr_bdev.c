@@ -1082,26 +1082,18 @@ typedef struct _heaan_ctx {
 
 static void
 nvmf_heaan_cip_write_complete(struct spdk_bdev_io *bdev_io, bool success, void *cb_arg) {
-	fprintf(stdout, "HEaaN CWC ENTERED.\n");
 	heaan_ctx* ctx = (heaan_ctx*)cb_arg;
-	fprintf(stdout, "HEaaN CWC - ctx retrieved.\n");
-	fprintf(stdout, "HEaaN CWC - ctx addr: %d\n", ctx);
     struct spdk_nvmf_request *req = ctx->req;
 	struct spdk_bdev_desc* desc = ctx->desc;
 	struct spdk_io_channel* ch = ctx->ch;
-	fprintf(stdout, "HEaaN CWC - req retrived.\n");
     struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
-	fprintf(stdout, "HEaaN CWC - cmd retrieved.\n");
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
-	fprintf(stdout, "HEaaN CWC - response retrieved.\n");
-	fprintf(stdout, "HEaaN CWC - current load status: %d\n", ctx->pending_fills);
 	if(!success) {
 		ctx->req->rsp->nvme_cpl.status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
         ctx->pending_fills = -1; // Stop processing
     }
 	else {
 		ctx->pending_fills--;
-		fprintf(stdout, "HEaaN CWC - changing load status: %d\n", ctx->pending_fills);
 	}
 
 	if(ctx->pending_fills <= 0) {
@@ -1115,7 +1107,7 @@ nvmf_heaan_cip_write_complete(struct spdk_bdev_io *bdev_io, bool success, void *
     		spdk_free(ctx);
 		}
 		else {
-			dump_hex("TARGET - Loaded Buffer Content", ctx->target_buffer, 64);
+			//dump_hex("TARGET - Loaded Buffer Content", ctx->target_buffer, 64);
     		response->status.sct = SPDK_NVME_SCT_GENERIC;
     		response->status.sc = SPDK_NVME_SC_SUCCESS;
 			spdk_dma_free(ctx->target_buffer);
@@ -1130,19 +1122,12 @@ nvmf_heaan_cip_write_complete(struct spdk_bdev_io *bdev_io, bool success, void *
 static void
 nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void *cb_arg)
 {
-	fprintf(stdout, "HEaaN BFR ENTERED.\n");
 	heaan_ctx* ctx = (heaan_ctx*)cb_arg;
-	fprintf(stdout, "HEaaN BFR - ctx retrieved.\n");
-	fprintf(stdout, "HEaaN BFR - ctx addr: %d\n", ctx);
     struct spdk_nvmf_request *req = ctx->req;
 	struct spdk_bdev_desc* desc = ctx->desc;
 	struct spdk_io_channel* ch = ctx->ch;
-	fprintf(stdout, "HEaaN BFR - req retrived.\n");
     struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
-	fprintf(stdout, "HEaaN BFR - cmd retrieved.\n");
     struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
-	fprintf(stdout, "HEaaN BFR - response retrieved.\n");
-	fprintf(stdout, "HEaaN BFR - current load status: %d\n", ctx->pending_fills);
 	if(!success) {
 		ctx->req->rsp->nvme_cpl.status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
         ctx->pending_fills = -1; // Stop processing
@@ -1165,15 +1150,14 @@ nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void
 			response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
 		}
 		else {
-			dump_hex("INPUT0 - Loaded Buffer Content", ctx->input_0_buffer, 64);
-			dump_hex("INPUT1 - Loaded Buffer Content", ctx->input_1_buffer, 64);
+			//dump_hex("INPUT0 - Loaded Buffer Content", ctx->input_0_buffer, 64);
+			//dump_hex("INPUT1 - Loaded Buffer Content", ctx->input_1_buffer, 64);
 
 			heaan_ndp_context* hestr = heaan_Get_Context();
 			void* input_0_ciphertext = readCiphertextFromMem(ctx->input_0_buffer, ctx->input_0_total_size, ctx->input_0_start_offset);
 			void* input_1_ciphertext = readCiphertextFromMem(ctx->input_1_buffer, ctx->input_1_total_size, ctx->input_1_start_offset);
 			void* target_ciphertext = create_Ciphertext();
 
-			fprintf(stdout, "Ciphertext Addition Started.\n");
 			if(ciphertextAdd(hestr->scheme, target_ciphertext, input_0_ciphertext, input_1_ciphertext) != 0) {
 				SPDK_ERRLOG("Ciphertext Add Error\n");
 				response->status.sct = SPDK_NVME_SCT_GENERIC;
@@ -1189,7 +1173,7 @@ nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void
 				spdk_nvmf_request_complete(req);
 				return ;
 			}
-			
+			/* for DEBUGGING
 			fprintf(stdout, "Cip0 - n: %d\n", getCiphertextN(input_0_ciphertext));
 			fprintf(stdout, "Cip0 - logp: %d\n", getCiphertextLogp(input_0_ciphertext));
 			fprintf(stdout, "Cip0 - logq: %d\n", getCiphertextLogq(input_0_ciphertext));
@@ -1201,7 +1185,7 @@ nvmf_heaan_buffer_fill_complete(struct spdk_bdev_io *bdev_io, bool success, void
 			fprintf(stdout, "CipAdd - n: %d\n", getCiphertextN(target_ciphertext));
 			fprintf(stdout, "CipAdd - logp: %d\n", getCiphertextLogp(target_ciphertext));
 			fprintf(stdout, "CipAdd - logq: %d\n", getCiphertextLogq(target_ciphertext));
-
+			*/
 			writeCiphertextToMem(target_ciphertext, ctx->target_buffer, 0);
 			
 			fprintf(stdout, "Freeing Ciphertexts.\n");
@@ -1254,11 +1238,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     ctx->ch = ch;
 
 	
-	fprintf(stdout, "C_HEAAN_ADD : Entered and started.\n");
 	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
     uint32_t num_iovs = req->iovcnt;
-	fprintf(stdout, "C_HEAAN_ADD: Total Data Transfer Length: %u bytes\n", total_data_len);
-    fprintf(stdout, "C_HEAAN_ADD: Number of IOVs: %u\n", num_iovs);
 
     // Data buffer validity check
     if (total_data_len == 0 || num_iovs == 0 || req->iov[0].iov_base == NULL) {
@@ -1271,7 +1252,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	
 	void* data_buf_ptr = NULL;
 	data_buf_ptr = req->iov[0].iov_base;
-	dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
+	//dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
 
 	uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	uint32_t bufnum = 0;
@@ -1290,11 +1271,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	ctx->input_1_total_size = 0;
 	
 	uint32_t iter = 0;
-	fprintf(stdout, "IN 0 Offset: %lld\n", u64data[bufnum]);
 	input_0_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < input_0_extents_count; iter++) {
-    	fprintf(stdout, "IN 0 LBA: %lld\n", u64data[bufnum]);
-    	fprintf(stdout, "IN 0 Len: %lld\n", u64data[bufnum+1]);
 		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks,
 														u64data[bufnum] / block_size, 
 														u64data[bufnum+1] / block_size))) {
@@ -1309,11 +1287,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		input_0_size += u64data[bufnum++];
 	}
 	
-	fprintf(stdout, "IN 1 Offset: %lld\n", u64data[bufnum]);
 	input_1_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < input_1_extents_count; iter++) {
-    	fprintf(stdout, "IN 1 LBA: %lld\n", u64data[bufnum]);
-    	fprintf(stdout, "IN 1 Len: %lld\n", u64data[bufnum+1]);
 		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks,
 														u64data[bufnum] / block_size, 
 														u64data[bufnum+1] / block_size))) {
@@ -1328,11 +1303,8 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 		input_1_size += u64data[bufnum++]; 
 	}
 	
-	fprintf(stdout, "TGT Offset: %lld\n", u64data[bufnum]);
 	target_start_offset = u64data[bufnum++];
 	for(iter = 0; iter < target_extents_count; iter++) {
-    	fprintf(stdout, "TGT LBA: %lld\n", u64data[bufnum]);
-    	fprintf(stdout, "TGT Len: %lld\n", u64data[bufnum+1]);
 		if (spdk_unlikely(!nvmf_bdev_ctrlr_lba_in_range(bdev_num_blocks, 
 														u64data[bufnum] / block_size, 
 														u64data[bufnum+1] / block_size))) {
@@ -1359,9 +1331,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 	int load_result = 0;
 
 	buffer_address = ctx->input_0_buffer;
-	fprintf(stdout, "INPUT0 - Buffer load start\n");
 	for(iter = 0; iter < input_0_extents_count; iter++) {
-		fprintf(stdout, "INP0 - iter : %d\n\tLBA: %d\n\tBLKNUM: %d\n", iter, input_0_ext[2 * iter], input_0_ext[2 * iter + 1]);
 		load_result = spdk_bdev_read(desc, ch, buffer_address, 
 									 input_0_ext[2 * iter] , input_0_ext[2 * iter + 1], 
 									 nvmf_heaan_buffer_fill_complete, ctx);
@@ -1377,13 +1347,10 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
-	fprintf(stdout, "INPUT0 - Buffer load request COMPLETE\n");
 
-	fprintf(stdout, "INPUT1 - Buffer load start\n");
 	buffer_address = ctx->input_1_buffer;
 	load_result = 0;
 	for(iter = 0; iter < input_1_extents_count; iter++) {
-		fprintf(stdout, "INP1 - iter : %d\n\tLBA: %d\n\tBLKNUM: %d\n", iter, input_1_ext[2 * iter], input_1_ext[2 * iter + 1]);
 		load_result = spdk_bdev_read(desc, ch, buffer_address, 
 									 input_1_ext[2 * iter], input_1_ext[2 * iter + 1], 
 									 nvmf_heaan_buffer_fill_complete, ctx);
@@ -1399,7 +1366,6 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 			return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 		}
 	}
-	fprintf(stdout, "INPUT1 - Buffer load request COMPLETE\n");
 
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }

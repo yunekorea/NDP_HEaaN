@@ -39,6 +39,7 @@ sudo ./scripts/pkgdep.sh --rdma #RDMA 환경 설정 시
 2. 먼저 Target 서버에서 SPDK를 빌드합니다.
 ```shell
 sudo ./configure
+sudo ./configure --with-rdma #RDMA 환경 설정 시
 sudo make -j $(nproc)
 ```
 

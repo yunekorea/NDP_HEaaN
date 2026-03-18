@@ -27,6 +27,7 @@ endif
 # 1. Add the include path for HEaaN headers.
 # This ensures files like nvmf_heaan_main.c and ctrlr_bdev.c can find the *.h files.
 CFLAGS += -I$(SPDK_ROOT_DIR)/include/heaan
+CFLAGS += -DHEAAN_LIB
 
 # 2. Add the path to the HEaaN library directory to the linker.
 # The '-L' flag tells the linker where to search for the library file.

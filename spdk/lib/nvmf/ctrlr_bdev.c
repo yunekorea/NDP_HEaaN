@@ -22,7 +22,9 @@
 
 #include "spdk/log.h"
 
+#ifdef HEAAN_LIB
 #include "heaan/HEaaN_CWrapper.h"
+#endif
 
 struct custom_grep_ctx {
     struct spdk_nvmf_request *req;
@@ -1063,6 +1065,7 @@ void dump_hex(const char *label, const void *data, size_t len)
     }
 }
 
+#ifdef HEAAN_LIB
 typedef struct _heaan_ctx {
     void *input_0_buffer;
     void *input_1_buffer;
@@ -1369,6 +1372,7 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }
+#endif
 	
 
 int

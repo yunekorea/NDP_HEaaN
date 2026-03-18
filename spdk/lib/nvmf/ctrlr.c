@@ -2526,21 +2526,23 @@ static const struct spdk_nvme_cmds_and_effect_log_page g_cmds_and_effect_log_pag
 		/* COPY */
 		[SPDK_NVME_OPC_COPY]			= {1, 1, 0, 0, 0, 0, 0, 0},
 		/* CUSTOM ECHO */
-    [SPDK_NVME_OPC_CUSTOM_ECHO]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* CUSTOM GREP */
-    [SPDK_NVME_OPC_CUSTOM_GREP]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* HEAAN ADD */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_ADD]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* HEAAN SUB */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_SUB]     = {1, 1, 0, 0, 0, 0, 0, 0}, 
-    /* HEAAN MUL */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_MUL]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* HEAAN DIV */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_DIV]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* HEAAN DEC */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_DEC]     = {1, 1, 0, 0, 0, 0, 0, 0},
-    /* HEAAN BTSRP */
-    [SPDK_NVME_OPC_CUSTOM_HEAAN_BTSRP]     = {1, 1, 0, 0, 0, 0, 0, 0},
+    	[SPDK_NVME_OPC_CUSTOM_ECHO]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		/* CUSTOM GREP */
+		[SPDK_NVME_OPC_CUSTOM_GREP]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		#ifdef HEAAN_LIB
+		/* HEAAN ADD */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_ADD]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		/* HEAAN SUB */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_SUB]     = {1, 1, 0, 0, 0, 0, 0, 0}, 
+		/* HEAAN MUL */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_MUL]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		/* HEAAN DIV */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_DIV]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		/* HEAAN DEC */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_DEC]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		/* HEAAN BTSRP */
+		[SPDK_NVME_OPC_CUSTOM_HEAAN_BTSRP]     = {1, 1, 0, 0, 0, 0, 0, 0},
+		#endif
 	},
 };
 
@@ -4455,8 +4457,10 @@ nvmf_ctrlr_process_io_cmd(struct spdk_nvmf_request *req)
             return nvmf_bdev_ctrlr_custom_echo_cmd(bdev, desc, ch, req);
         case SPDK_NVME_OPC_CUSTOM_GREP:
             return nvmf_bdev_ctrlr_custom_grep_cmd(bdev, desc, ch, req);
+		#ifdef HEAAN_LIB
 		case SPDK_NVME_OPC_CUSTOM_HEAAN_ADD:
 			return nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(bdev, desc, ch, req);
+		#endif
         // END OF CUSTOM COMMAND
 		case SPDK_NVME_OPC_COMPARE:
 			if (spdk_unlikely(!ctrlr->cdata.oncs.compare)) {

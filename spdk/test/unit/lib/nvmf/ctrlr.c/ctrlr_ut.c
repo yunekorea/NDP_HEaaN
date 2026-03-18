@@ -134,11 +134,13 @@ DEFINE_STUB(nvmf_bdev_ctrlr_custom_grep_cmd,
 	     struct spdk_nvmf_request *req),
 	    0);
 
+#ifdef HEAAN_LIB
 DEFINE_STUB(nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd,
 	    int,
 	    (struct spdk_bdev *bdev, struct spdk_bdev_desc *desc, struct spdk_io_channel *ch,
 	     struct spdk_nvmf_request *req),
 	    0);
+#endif
 
 DEFINE_STUB(nvmf_bdev_ctrlr_compare_cmd,
 	    int,

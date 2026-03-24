@@ -16,7 +16,7 @@
     SPDK_NVME_OPC_CUSTOM_ECHO = 0xd0, // opcode for custom echo,
     ```
 
-2. 새로운 opcode가 io 명령으로 동작할 수 있도록 구성
+2. 새로운 opcode가 io 명령으로 동작할 수 있도록 구성(lib/nvmf/ctrlr.c)
 
     ```c
     static const struct spdk_nvme_cmds_and_effect_log_page g_cmds_and_effect_log_page = {
@@ -93,7 +93,7 @@
     새롭게 구현한 드라이버 함수에 대해 실제 unit test를 작성하는 것은 아니지만, 구현한 함수를 unit test 영역에 등록하지 않으면 빌드가 실패합니다. 
     따라서 구현한 함수를 반드시 unit test에 등록합니다.
     
-    등록 위치: `spdk/test/unit/lib/nvmf/ctrlr.c` , `spdk/test/unit/lib/nvmf/tcp.c`
+    등록 위치: `spdk/test/unit/lib/nvmf/ctrlr.c/ctrlr_ut.c` , `spdk/test/unit/lib/nvmf/tcp.c/tcp_ut.c`
     
     ```c
     ... 
@@ -108,7 +108,7 @@
 6. SPDK 빌드 및 재시작
 
     ```shell
-   sudo make -j `nproc`
+   sudo make -j $(nproc)
    sudo build/bin/nvmf_tgt
    ```
 

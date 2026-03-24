@@ -678,6 +678,10 @@ spdk_nvmf_req_get_xfer(struct spdk_nvmf_request *req) {
 	}
 	#endif
 
+	if (cmd->opc = 0xDB) { // liberate-fhe bootstrapping command
+		return SPDK_NVME_DATA_HOST_TO_CONTROLLER; 
+	}
+
 	/* Figure out data transfer direction */
 	if (cmd->opc == SPDK_NVME_OPC_FABRIC)
 	{

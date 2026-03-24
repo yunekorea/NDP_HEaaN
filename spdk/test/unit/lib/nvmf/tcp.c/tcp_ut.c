@@ -140,6 +140,12 @@ DEFINE_STUB(nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd,
 	    0);
 #endif
 
+DEFINE_STUB(nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd,
+	    int,
+	    (struct spdk_bdev *bdev, struct spdk_bdev_desc *desc, struct spdk_io_channel *ch,
+	     struct spdk_nvmf_request *req),
+	    0);
+
 DEFINE_STUB(nvmf_bdev_ctrlr_compare_cmd,
 	    int,
 	    (struct spdk_bdev *bdev, struct spdk_bdev_desc *desc, struct spdk_io_channel *ch,

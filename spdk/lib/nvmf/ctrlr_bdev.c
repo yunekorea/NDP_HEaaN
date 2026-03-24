@@ -1374,6 +1374,12 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
 }
 #endif
 	
+int
+nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
+                                struct spdk_io_channel *ch, struct spdk_nvmf_request *req)
+{
+	return 0;
+}
 
 int
 nvmf_bdev_ctrlr_compare_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,

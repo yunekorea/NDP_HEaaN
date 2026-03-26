@@ -1753,7 +1753,7 @@ enum spdk_nvme_nvm_opcode {
 	SPDK_NVME_OPC_CUSTOM_HEAAN_DEC = 0xe4,   // opcode for HEaaN decryption
 	SPDK_NVME_OPC_CUSTOM_HEAAN_BTSRP = 0xe5, // opcode for HEaaN bootstrapping
 	#endif
-	SPDK_NVME_OPC_CUSTOM_LIBFHE_BTSTRP = 0xdb // opcode for liberate-fhe bootstrapping
+	SPDK_NVME_OPC_CUSTOM_LIBFHE_BTSTRP = 0xdb, // opcode for liberate-fhe bootstrapping
 };
 
 /**

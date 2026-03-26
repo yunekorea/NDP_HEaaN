@@ -1378,7 +1378,32 @@ int
 nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
                                 struct spdk_io_channel *ch, struct spdk_nvmf_request *req)
 {
-	return 0;
+    struct spdk_nvme_cmd *cmd = &req->cmd->nvme_cmd;
+    struct spdk_nvme_cpl *response = &req->rsp->nvme_cpl;
+	
+	uint64_t bdev_num_blocks = spdk_bdev_get_num_blocks(bdev);
+	uint32_t block_size = spdk_bdev_get_block_size(bdev);
+	
+	void* buffer_address = NULL;
+
+	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
+    uint32_t num_iovs = req->iovcnt;
+
+    // Data buffer validity check
+    if (total_data_len == 0 || num_iovs == 0 || req->iov[0].iov_base == NULL) {
+        SPDK_ERRLOG("Custom command 0xE0: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
+        response->status.sct = SPDK_NVME_SCT_GENERIC;
+        response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
+        return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
+    }
+	
+	void* data_buf_ptr = NULL;
+	data_buf_ptr = req->iov[0].iov_base;
+	//dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
+
+	//uint64_t* u64data = (uint64_t *)data_buf_ptr;
+	dump_hex("LIBFHE buffer content:", data_buf_ptr, 64);
+    return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }
 
 int

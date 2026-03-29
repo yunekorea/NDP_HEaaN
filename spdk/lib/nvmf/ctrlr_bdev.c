@@ -1399,11 +1399,12 @@ nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bde
 	
 	void* data_buf_ptr = NULL;
 	data_buf_ptr = req->iov[0].iov_base;
+	SPDK_NOTICELOG("libfhe_btstrp_cmd entered.\n");
 	//dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
 
 	//uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	dump_hex("LIBFHE buffer content:", data_buf_ptr, 64);
-    return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
+    return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 }
 
 int

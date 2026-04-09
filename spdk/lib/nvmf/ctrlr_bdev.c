@@ -26,6 +26,9 @@
 #include "heaan/HEaaN_CWrapper.h"
 #endif
 
+#include <sys/socket.h>
+#include <sys/un.h>
+
 struct custom_grep_ctx {
     struct spdk_nvmf_request *req;
     char *buffer;
@@ -1373,7 +1376,15 @@ nvmf_bdev_ctrlr_custom_heaan_cipadd_cmd(struct spdk_bdev *bdev, struct spdk_bdev
     return SPDK_NVMF_REQUEST_EXEC_STATUS_ASYNCHRONOUS;
 }
 #endif
-	
+
+typedef struct _libfhe_meta {
+	uint64_t addr;
+	uint32_t rkey;
+	uint32_t length;
+	uint64_t name_length;
+    char device_name[50];
+} libfhe_meta;
+
 int
 nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bdev_desc *desc,
                                 struct spdk_io_channel *ch, struct spdk_nvmf_request *req)
@@ -1389,9 +1400,11 @@ nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bde
 	uint32_t total_data_len = req->iov->iov_len * NVMF_REQ_MAX_BUFFERS;
     uint32_t num_iovs = req->iovcnt;
 
+	int sock;
+
     // Data buffer validity check
     if (total_data_len == 0 || num_iovs == 0 || req->iov[0].iov_base == NULL) {
-        SPDK_ERRLOG("Custom command 0xE0: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
+        SPDK_ERRLOG("Custom command 0xDB: No data buffer indicated or buffer is NULL. Cannot proceed.\n");
         response->status.sct = SPDK_NVME_SCT_GENERIC;
         response->status.sc = SPDK_NVME_SC_INTERNAL_DEVICE_ERROR;
         return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
@@ -1400,10 +1413,32 @@ nvmf_bdev_ctrlr_custom_libfhe_btstrp_cmd(struct spdk_bdev *bdev, struct spdk_bde
 	void* data_buf_ptr = NULL;
 	data_buf_ptr = req->iov[0].iov_base;
 	SPDK_NOTICELOG("libfhe_btstrp_cmd entered.\n");
-	//dump_hex("Received Buffer Content (Target)", data_buf_ptr, 256);
 
 	//uint64_t* u64data = (uint64_t *)data_buf_ptr;
 	dump_hex("LIBFHE buffer content:", data_buf_ptr, 64);
+	void* ptr = data_buf_ptr;
+	libfhe_meta meta;
+	meta.addr = *((uint64_t*)ptr);
+	ptr = ptr + sizeof(uint64_t);
+	meta.rkey = *((uint32_t*)ptr);
+	ptr = ptr + sizeof(uint32_t);
+	meta.length = *((uint32_t*)ptr);
+	ptr = ptr + sizeof(uint32_t);
+	meta.name_length = *((uint64_t*)ptr);
+	ptr = ptr + sizeof(uint64_t);
+	strncpy(meta.device_name, (char*)ptr, meta.name_length);
+
+	sock = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	struct sockaddr_un addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = PF_UNIX;
+	strcpy(addr.sun_path, "/tmp/rdma_metadata.sock");
+
+	if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) == 0) {
+		send(sock, (void*)&meta, sizeof(meta), 0);
+	}
+
     return SPDK_NVMF_REQUEST_EXEC_STATUS_COMPLETE;
 }
 
